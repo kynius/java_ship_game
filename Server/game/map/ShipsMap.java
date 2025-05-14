@@ -1,0 +1,32 @@
+package game.map;
+
+import game.cell.CellCoordinates;
+import game.cell.ShipsCell;
+
+public class ShipsMap extends Map<ShipsCell> {
+
+    public ShipsMap(int size) {
+        super(size);
+    }
+
+    @Override
+    protected void initialize(int size) {
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                _cells.add(new ShipsCell(x, y));
+            }
+        }
+    }
+
+    public boolean hasShipAt(CellCoordinates coordinates) {
+        ShipsCell cell = getCellAt(coordinates);
+        return cell != null && cell.isShip() && cell.getShipId() != null;
+    }
+
+    public boolean hasUnhitCellOfShip(int shipId) {
+        return _cells.stream()
+                .anyMatch(cell -> cell.isShip()
+                        && shipId == cell.getShipId()
+                        && !cell.isHit());
+    }
+}
