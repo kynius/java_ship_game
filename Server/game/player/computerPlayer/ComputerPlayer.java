@@ -8,12 +8,13 @@ import Server.game.utility.ShotStatus;
 import Server.game.utility.ShotStatuses;
 
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 public class ComputerPlayer extends Player {
 
     private final Random _random = new Random();
     private final ComputerShootingManager _computerShootingManager;
-    private  ShotStatus _lastShotStatus = null;
+    private ShotStatus _lastShotStatus = null;
 
     public ComputerPlayer(int mapSize, ShipsConfiguration shipsConfiguration) {
         super(mapSize, shipsConfiguration);
@@ -21,13 +22,14 @@ public class ComputerPlayer extends Player {
     }
 
     @Override
-    public void makeShoot(CellCoordinates coordinates) {
-        _computerShootingManager.shoot();
+    public CompletableFuture<CellCoordinates> makeShoot() {
+        _shotsMade++;
+        CellCoordinates coords = _computerShootingManager.shoot();
+        return CompletableFuture.completedFuture(coords);
     }
 
-    //loops over ships configuration
     @Override
-    public void placeShips() {
+    public CompletableFuture<Void> placeShips() {
         int[] shipsPerLength = _shipsConfiguration.getShipAmounts();
         int shipId = 1;
 
@@ -49,24 +51,25 @@ public class ComputerPlayer extends Player {
                 shipId++;
             }
         }
+
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public void getShotInformationReturn(ShotStatus shotStatus) {
         _lastShotStatus = shotStatus;
         var cellToMark = this._shootingMap.getCellAt(shotStatus.getShootCoordinate());
-        if(shotStatus.getStatus() == ShotStatuses.MISSED) {
-            cellToMark.setShot(true);
-        } else {
-            cellToMark.setShot(true);
+
+        cellToMark.setShot(true);
+
+        if (shotStatus.getStatus() != ShotStatuses.MISSED) {
             cellToMark.setIsAimed(true);
 
-            if(shotStatus.getStatus() == ShotStatuses.SHOT){
+            if (shotStatus.getStatus() == ShotStatuses.SHOT) {
                 _computerShootingManager.setIsDestroying(true);
-            } else if(shotStatus.getStatus() == ShotStatuses.SHOTNDESTORYED) {
+            } else if (shotStatus.getStatus() == ShotStatuses.SHOTNDESTORYED) {
                 _computerShootingManager.setIsDestroying(false);
             }
         }
-
     }
 }
