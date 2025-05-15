@@ -50,7 +50,6 @@ public class Game {
     private void playGame() {
         _players[0].makeShoot().thenAccept(shootCoordinates -> {
             var shootResult = _players[1].takeShot(shootCoordinates);
-            _players[0].getShotInformationReturn(shootResult);
 
             CompletableFuture<Void> messageDelay;
 
@@ -82,6 +81,7 @@ public class Game {
                 switchTurn();
             }
 
+            _players[0].getShotInformationReturn(shootResult);
             messageDelay.thenRun(this::playGame);
         });
     }
