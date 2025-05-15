@@ -1,4 +1,4 @@
-package game.cell;
+package Server.game.cell;
 
 public class ShootingCell extends Cell {
     private boolean isShot = false;

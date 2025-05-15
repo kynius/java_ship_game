@@ -1,4 +1,4 @@
-package game.cell;
+package Server.game.cell;
 
 public abstract class Cell {
     private final CellCoordinates coordinates;

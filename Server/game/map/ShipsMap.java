@@ -1,7 +1,7 @@
-package game.map;
+package Server.game.map;
 
-import game.cell.CellCoordinates;
-import game.cell.ShipsCell;
+import Server.game.cell.CellCoordinates;
+import Server.game.cell.ShipsCell;
 
 public class ShipsMap extends Map<ShipsCell> {
 

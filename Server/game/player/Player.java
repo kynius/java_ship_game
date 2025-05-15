@@ -1,11 +1,11 @@
-package game.player;
+package Server.game.player;
 
-import game.cell.CellCoordinates;
-import game.map.ShootingMap;
-import game.map.ShipsMap;
-import game.utility.ShipsConfiguration;
-import game.utility.ShotStatus;
-import game.utility.ShotStatuses;
+import Server.game.cell.CellCoordinates;
+import Server.game.map.ShootingMap;
+import Server.game.map.ShipsMap;
+import Server.game.utility.ShipsConfiguration;
+import Server.game.utility.ShotStatus;
+import Server.game.utility.ShotStatuses;
 
 public abstract class Player {
     protected ShootingMap _shootingMap;

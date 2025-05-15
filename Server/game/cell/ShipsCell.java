@@ -1,4 +1,4 @@
-package game.cell;
+package Server.game.cell;
 
 public class ShipsCell extends Cell {
     private boolean isShip = false;

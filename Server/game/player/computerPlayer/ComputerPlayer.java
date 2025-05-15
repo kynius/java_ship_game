@@ -1,11 +1,11 @@
-package game.player.computerPlayer;
+package Server.game.player.computerPlayer;
 
-import game.cell.CellCoordinates;
-import game.player.Player;
-import game.utility.Directions;
-import game.utility.ShipsConfiguration;
-import game.utility.ShotStatus;
-import game.utility.ShotStatuses;
+import Server.game.cell.CellCoordinates;
+import Server.game.player.Player;
+import Server.game.utility.Directions;
+import Server.game.utility.ShipsConfiguration;
+import Server.game.utility.ShotStatus;
+import Server.game.utility.ShotStatuses;
 
 import java.util.Random;
 

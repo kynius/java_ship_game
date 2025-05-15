@@ -1,9 +1,9 @@
-package game.player.computerPlayer;
+package Server.game.player.computerPlayer;
 
-import game.cell.CellCoordinates;
-import game.cell.ShootingCell;
-import game.map.ShootingMap;
-import game.utility.ShotStatus;
+import Server.game.cell.CellCoordinates;
+import Server.game.cell.ShootingCell;
+import Server.game.map.ShootingMap;
+import Server.game.utility.ShotStatus;
 
 import java.util.ArrayList;
 import java.util.List;

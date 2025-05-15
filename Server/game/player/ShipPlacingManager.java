@@ -1,9 +1,9 @@
-package game.player;
+package Server.game.player;
 
-import game.cell.CellCoordinates;
-import game.cell.ShipsCell;
-import game.map.ShipsMap;
-import game.utility.Directions;
+import Server.game.cell.CellCoordinates;
+import Server.game.cell.ShipsCell;
+import Server.game.map.ShipsMap;
+import Server.game.utility.Directions;
 
 import java.util.ArrayList;
 import java.util.List;

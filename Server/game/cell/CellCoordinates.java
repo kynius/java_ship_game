@@ -1,4 +1,4 @@
-package game.cell;
+package Server.game.cell;
 
 import java.util.Objects;
 

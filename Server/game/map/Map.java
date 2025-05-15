@@ -1,9 +1,9 @@
-package game.map;
+package Server.game.map;
 
 import java.util.ArrayList;
 import java.util.List;
-import game.cell.Cell;
-import game.cell.CellCoordinates;
+import Server.game.cell.Cell;
+import Server.game.cell.CellCoordinates;
 
 public abstract class Map<T extends Cell> {
     protected List<T> _cells;

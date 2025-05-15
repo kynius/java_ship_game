@@ -1,37 +1,39 @@
-package game.utility;
+package Server.game.utility;
 
 public class ShipsConfiguration {
-    private final int fourCellShipsAmount;
-    private final int threeCellShipsAmount;
-    private final int twoCellShipsAmount;
-    private final int oneCellShipsAmount;
+    private final int[] shipAmounts;
 
-    public ShipsConfiguration(int four, int three, int two, int one) {
-        this.fourCellShipsAmount = four;
-        this.threeCellShipsAmount = three;
-        this.twoCellShipsAmount = two;
-        this.oneCellShipsAmount = one;
+    /**
+     * Creates a ship configuration with variable ship lengths.
+     * The first element is the number of ships with the longest size.
+     * For example: index 0 = 4-cell ships, index 1 = 3-cell ships, etc.
+     *
+     * @param shipAmounts array of ship counts ordered from longest to shortest ship size
+     */
+    public ShipsConfiguration(int[] shipAmounts) {
+        this.shipAmounts = shipAmounts.clone(); // defensive copy
     }
 
     /**
-     * Returns the number of ships for each ship size,
-     * ordered from the longest (4-cell) to the shortest (1-cell).
+     * Returns the ship configuration array.
+     * Each index represents a ship size, ordered from longest to shortest.
      *
-     * @return an array of ship counts: [4-cell, 3-cell, 2-cell, 1-cell]
+     * @return array of ship counts
      */
     public int[] getShipAmounts() {
-        return new int[] {
-                fourCellShipsAmount,
-                threeCellShipsAmount,
-                twoCellShipsAmount,
-                oneCellShipsAmount
-        };
+        return shipAmounts.clone(); // return a copy to preserve immutability
     }
 
+    /**
+     * Returns the total number of ships.
+     *
+     * @return total number of ships
+     */
     public int countAllShips() {
-        return fourCellShipsAmount +
-                threeCellShipsAmount +
-                twoCellShipsAmount +
-                oneCellShipsAmount;
+        int sum = 0;
+        for (int amount : shipAmounts) {
+            sum += amount;
+        }
+        return sum;
     }
 }
