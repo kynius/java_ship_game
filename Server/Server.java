@@ -17,16 +17,21 @@ public class Server {
                 out = new ObjectOutputStream(socket.getOutputStream());
                 out.flush();
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                out.writeObject("Witaj na serwerze");
                 // wydmuszka mapy
                 var cells = new ArrayList<ShipsCell>();
-                for (int x = 1; x <= 10; x++) {
-                    for (int y = 1; y <= 10; y++) {
-                        cells.add(new ShipsCell(x, y));
+                for (int x = 1; x <= 5; x++) {
+                    for (int y = 1; y <= 5; y++) {
+                        var ship = new ShipsCell(x, y);
+                        if(x + y == 6)
+                        {
+                            ship.setPossibleToShip(false);
+                        }
+                        cells.add(ship);
                     }
                 }
                 Thread.sleep(2000);
                 out.writeObject(cells);
+                out.writeObject("Zaczyna gracz 1");
                 while ((clientMessage = in.readObject()) != null) {
 
                 }

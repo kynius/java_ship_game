@@ -1,9 +1,11 @@
 package Client.main;
 
+import Client.maps.Map;
 import Client.navigation.MainMenu;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import javax.swing.*;
 public class Client {
     public static JFrame frame;
@@ -12,6 +14,7 @@ public class Client {
         ObjectInputStream in;
         Object message;
         try (Socket socket = new Socket(args[0], Integer.parseInt(args[1]))) {
+            Map.consoleMessages = new ArrayList<String>();
             frame = new JFrame("JAVA SHIP GAME");
             System.out.println("Połączono z serwerem");
             out = new ObjectOutputStream(socket.getOutputStream());

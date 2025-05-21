@@ -9,7 +9,8 @@ import java.util.ArrayList;
 public class MessageHandler {
     public static void HandleMessage(String message)
     {
-        System.out.println(message);
+        Map.consoleMessages.add(message);
+        Map.refreshConsole();
     }
     public static void HandleObject(Object message)
     {
@@ -20,10 +21,7 @@ public class MessageHandler {
         if (message instanceof ArrayList<?> && ((ArrayList<?>) message).size() > 0 && ((ArrayList<?>) message).get(0) instanceof ShipsCell)
         {
             ArrayList<ShipsCell> cells = (ArrayList<ShipsCell>) message;
-            cells.forEach(shipsCell -> {
-            });
-            System.out.println("Otrzymano listę ShipsCell:");
-            Map.GeneretateMap(cells);
+            Map.GeneratePlacingMap(cells);
         }
         if (message instanceof ArrayList<?> && ((ArrayList<?>) message).size() > 0 && ((ArrayList<?>) message).get(0) instanceof ShootingCell)
         {
