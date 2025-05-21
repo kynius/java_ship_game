@@ -1,6 +1,6 @@
-package game.map;
+package Server.game.map;
 
-import game.cell.ShootingCell;
+import Server.game.cell.ShootingCell;
 
 public class ShootingMap extends Map<ShootingCell> {
 

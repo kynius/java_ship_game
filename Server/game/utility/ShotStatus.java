@@ -1,6 +1,7 @@
-package game.utility;
+package Server.game.utility;
 
-import game.cell.CellCoordinates;
+import Server.game.cell.CellCoordinates;
+import Server.game.utility.ShotStatuses;
 
 public class ShotStatus {
     private final ShotStatuses status;

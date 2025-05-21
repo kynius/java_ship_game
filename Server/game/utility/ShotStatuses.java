@@ -1,4 +1,4 @@
-package game.utility;
+package Server.game.utility;
 
 public enum ShotStatuses {
     MISSED,
