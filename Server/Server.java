@@ -1,46 +1,41 @@
 package Server;
 
-import Server.game.cell.ShipsCell;
+import Server.game.Game;
+import Server.game.player.computerPlayer.ComputerPlayer;
+import Server.game.player.humanPlayer.HumanPlayer;
+import Server.game.utility.MapConfigfuration;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 
 public class Server {
     public static ObjectOutputStream out;
-    public static void main(String[] args) {
-        Object clientMessage;
-        try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))) {
-            while (true) {
-                Socket socket = serverSocket.accept();
-                System.out.println("Połączono z klientem: " + socket.getInetAddress());
-                out = new ObjectOutputStream(socket.getOutputStream());
-                out.flush();
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                // wydmuszka mapy
-                var cells = new ArrayList<ShipsCell>();
-                for (int x = 1; x <= 5; x++) {
-                    for (int y = 1; y <= 5; y++) {
-                        var ship = new ShipsCell(x, y);
-                        if(x + y == 6)
-                        {
-                            ship.setPossibleToShip(false);
-                        }
-                        cells.add(ship);
-                    }
-                }
-                Thread.sleep(2000);
-                out.writeObject(cells);
-                out.writeObject("Zaczyna gracz 1");
-                while ((clientMessage = in.readObject()) != null) {
 
+    public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))) {
+            System.out.println("Serwer nasłuchuje na porcie: " + args[0]);
+
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Połączono z klientem: " + clientSocket.getInetAddress());
+
+            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+
+            while (true) {
+                Object inputObject = in.readObject();
+
+                if (inputObject instanceof MapConfigfuration config) {
+                    System.out.println("▶ Otrzymano konfigurację mapy od klienta");
+
+                    ComputerPlayer computerPlayer = new ComputerPlayer(config.getMapSize(), config.getShipsConfiguration());
+                    HumanPlayer humanPlayer = new HumanPlayer(config.getMapSize(), config.getShipsConfiguration(), clientSocket);
+                    Game game = new Game(humanPlayer, computerPlayer, config);
+                    game.startGame();
                 }
-                socket.close();
             }
+
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 }
