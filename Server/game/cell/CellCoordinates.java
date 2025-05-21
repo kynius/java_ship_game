@@ -1,8 +1,10 @@
 package Server.game.cell;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class CellCoordinates {
+public class CellCoordinates implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final int x;
     private final int y;
 

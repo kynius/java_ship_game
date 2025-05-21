@@ -1,4 +1,4 @@
-package navigation;
+package Client.navigation;
 
 public interface Menu {
 

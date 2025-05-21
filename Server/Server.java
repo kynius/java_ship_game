@@ -1,14 +1,16 @@
 package Server;
 
-import java.io.*;
-import java.net.*;
-
 import Server.game.Game;
 import Server.game.player.computerPlayer.ComputerPlayer;
 import Server.game.player.humanPlayer.HumanPlayer;
 import Server.game.utility.MapConfigfuration;
 
+import java.io.*;
+import java.net.*;
+
 public class Server {
+    public static ObjectOutputStream out;
+
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))) {
             System.out.println("Serwer nasłuchuje na porcie: " + args[0]);
@@ -29,7 +31,6 @@ public class Server {
                     HumanPlayer humanPlayer = new HumanPlayer(config.getMapSize(), config.getShipsConfiguration(), clientSocket);
                     Game game = new Game(humanPlayer, computerPlayer, config);
                     game.startGame();
-
                 }
             }
 

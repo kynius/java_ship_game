@@ -1,31 +1,30 @@
-package main;
+package Client.main;
 
-import navigation.MainMenu;
+import Client.maps.Map;
+import Client.navigation.MainMenu;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import javax.swing.*;
 public class Client {
     public static JFrame frame;
-    public static BufferedReader in;
-    public static PrintWriter out;
+    public static ObjectOutputStream out;
     public static void main(String[] args) {
-        String serverMessage;
+        ObjectInputStream in;
+        Object message;
         try (Socket socket = new Socket(args[0], Integer.parseInt(args[1]))) {
+            Map.consoleMessages = new ArrayList<String>();
             frame = new JFrame("JAVA SHIP GAME");
             System.out.println("Połączono z serwerem");
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(socket.getInputStream());
             SwingUtilities.invokeLater(() -> MainMenu.displayMenu());
-            while ((serverMessage = in.readLine()) != null) {
-                if(serverMessage.contains("5")) {
-                    frame.getContentPane().removeAll();
-                    frame.revalidate();
-                    frame.repaint();
-                }
-
+            while ((message = in.readObject()) != null) {
+                MessageHandler.HandleObject(message);
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
