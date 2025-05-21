@@ -2,19 +2,16 @@ package Server.game.player.humanPlayer;
 
 import DTOs.ShipPlacementDto;
 import DTOs.ShipPlacementRequestDto;
+import Server.Server;
 import Server.game.cell.CellCoordinates;
 import Server.game.player.Player;
 import Server.game.utility.ShipsConfiguration;
 import Server.game.utility.ShotStatus;
 
 import java.io.*;
-import java.net.Socket;
 import java.util.concurrent.CompletableFuture;
 
-public class HumanPlayer extends Player {
-    private final Socket socket;
-    private final ObjectOutputStream out;
-    private final ObjectInputStream in;
+public class HumanPlayer extends Player { ;
 
     private CompletableFuture<CellCoordinates> pendingShot;
     private CompletableFuture<Void> pendingPlacement;
@@ -23,14 +20,13 @@ public class HumanPlayer extends Player {
     private int currentShipId;
     private int currentShipLength;
 
-    public HumanPlayer(int mapSize, ShipsConfiguration shipsConfiguration, Socket socket) throws IOException {
+    public HumanPlayer(){
+
+    }
+
+    public HumanPlayer(int mapSize, ShipsConfiguration shipsConfiguration) throws IOException {
         super(mapSize, shipsConfiguration);
-        this.socket = socket;
-
-        this.out = new ObjectOutputStream(socket.getOutputStream());
-        this.in = new ObjectInputStream(socket.getInputStream());
-
-        startListening();
+        System.out.println();
     }
 
     @Override
@@ -45,7 +41,6 @@ public class HumanPlayer extends Player {
         this.pendingPlacement = new CompletableFuture<>();
         this.shipsLeftToPlace = _shipsConfiguration.countAllShips();
         this.currentShipId = 1;
-
         this.currentShipLength = calculateShipLengthForIndex(0); // first ship
         sendCurrentShipRequest();
         return pendingPlacement;
@@ -63,36 +58,37 @@ public class HumanPlayer extends Player {
         return result;
     }
 
-    private void startListening() {
-        new Thread(() -> {
-            try {
-                while (true) {
-                    Object message = in.readObject();
-                    handleMessage(message);
-                }
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Connection lost or invalid object: " + e.getMessage());
-            }
-        }).start();
-    }
+//    private void startListening() {
+//        new Thread(() -> {
+//            try {
+//                while (true) {
+//                    Object message = in.readObject();
+//                    handleMessage(message);
+//                }
+//            } catch (IOException | ClassNotFoundException e) {
+//                System.err.println("Connection lost or invalid object: " + e.getMessage());
+//            }
+//        }).start();
+//    }
 
-    private void handleMessage(Object message) {
+    public void handleMessage(Object message) {
         if (message instanceof CellCoordinates coords) {
             onPlayerShootReceived(coords);
         } else if (message instanceof ShipPlacementDto placement) {
+            System.out.println("Uruchomiono handleShipPlacementResponse");
             handleShipPlacementResponse(placement);
         } else {
             throw new RuntimeException("Object not acceptable: " + message.getClass());
         }
     }
 
-    private void onPlayerShootReceived(CellCoordinates coordinates) {
+    public void onPlayerShootReceived(CellCoordinates coordinates) {
         if (pendingShot != null && !pendingShot.isDone()) {
             pendingShot.complete(coordinates);
         }
     }
 
-    private void handleShipPlacementResponse(ShipPlacementDto placementDto) {
+    public void handleShipPlacementResponse(ShipPlacementDto placementDto) {
         if (shipsLeftToPlace <= 0) return;
 
         boolean placed = _shipPlacingManager.placeShip(
@@ -111,16 +107,18 @@ public class HumanPlayer extends Player {
         currentShipId++;
 
         if (shipsLeftToPlace == 0) {
+            System.out.println("nie ma statkow");
             pendingPlacement.complete(null);
         } else {
             int placedSoFar = _shipsConfiguration.countAllShips() - shipsLeftToPlace;
             currentShipLength = calculateShipLengthForIndex(placedSoFar);
+
             sendCurrentShipRequest();
         }
     }
 
     private void sendCurrentShipRequest() {
-        sendMessage(new ShipPlacementRequestDto(currentShipId, currentShipLength));
+        sendMessage(new ShipPlacementRequestDto(currentShipId, currentShipLength, _shipsMap));
     }
 
     private int calculateShipLengthForIndex(int shipIndex) {
@@ -137,8 +135,9 @@ public class HumanPlayer extends Player {
 
     private void sendMessage(Object object) {
         try {
-            out.writeObject(object);
-            out.flush();
+            Server.out.reset();
+            Server.out.writeObject(object);
+            Server.out.flush();
         } catch (IOException e) {
             System.err.println("Failed to send object to client: " + e.getMessage());
         }
@@ -146,8 +145,9 @@ public class HumanPlayer extends Player {
 
     public void sendMessage(String message) {
         try {
-            out.writeObject(message);
-            out.flush();
+            Server.out.reset();
+            Server.out.writeObject(message);
+            Server.out.flush();
             Thread.sleep(5000); // wait 5 seconds after sending
         } catch (IOException e) {
             System.err.println("Failed to send message to client: " + e.getMessage());

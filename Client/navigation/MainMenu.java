@@ -1,6 +1,10 @@
 package Client.navigation;
 
 import Client.main.Client;
+import Client.main.MessageHandler;
+import Server.game.utility.MapConfigfuration;
+import Server.game.utility.ShipsConfiguration;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -31,9 +35,11 @@ public class MainMenu implements Menu {
                     sizeFrame.setSize(400, 100);
                     sizeFrame.setLayout(new FlowLayout());
                     for (int i = 5; i <= 10; i++) {
+                            int[] mapConfigurations = new int[]{0,0,1,1,2};
                             var button = new JButton("" + i);
                             int finalI = i;
                             button.addActionListener(event -> {
+                                    MessageHandler.sendObject(new MapConfigfuration(finalI, new ShipsConfiguration(mapConfigurations)));
                                     sizeFrame.dispose();
                             });
                             sizeFrame.add(button);

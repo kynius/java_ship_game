@@ -16,7 +16,9 @@ public abstract class Player {
     protected ShipPlacingManager _shipPlacingManager;
     private int _shipsLeftInGame;
     protected int _shotsMade = 0;
+    public Player(){
 
+    }
     public Player(int mapSize, ShipsConfiguration shipsConfiguration) {
         this._shootingMap = new ShootingMap(mapSize);
         this._shipsMap = new ShipsMap(mapSize);

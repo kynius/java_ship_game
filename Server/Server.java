@@ -18,19 +18,21 @@ public class Server {
             Socket clientSocket = serverSocket.accept();
             System.out.println("Połączono z klientem: " + clientSocket.getInetAddress());
 
+            out = new ObjectOutputStream(clientSocket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
 
+            HumanPlayer humanPlayer = new HumanPlayer();
             while (true) {
                 Object inputObject = in.readObject();
-
                 if (inputObject instanceof MapConfigfuration config) {
-                    System.out.println("▶ Otrzymano konfigurację mapy od klienta");
 
                     ComputerPlayer computerPlayer = new ComputerPlayer(config.getMapSize(), config.getShipsConfiguration());
-                    HumanPlayer humanPlayer = new HumanPlayer(config.getMapSize(), config.getShipsConfiguration(), clientSocket);
+                    humanPlayer = new HumanPlayer(config.getMapSize(), config.getShipsConfiguration());
+
                     Game game = new Game(humanPlayer, computerPlayer, config);
                     game.startGame();
+                }else {
+                    humanPlayer.handleMessage(inputObject);
                 }
             }
 

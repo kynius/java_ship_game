@@ -1,6 +1,8 @@
 package Server.game.cell;
 
-public class ShipsCell extends Cell{
+import java.io.Serializable;
+
+public class ShipsCell extends Cell implements Serializable {
     private static final long serialVersionUID = 1L;
     private boolean isShip = false;
     private boolean isPossibleToShip = true;

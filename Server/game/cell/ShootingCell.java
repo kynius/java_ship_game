@@ -1,6 +1,8 @@
 package Server.game.cell;
 
-public class ShootingCell extends Cell {
+import java.io.Serializable;
+
+public class ShootingCell extends Cell implements Serializable {
     private boolean isShot = false;
     private boolean isAimed = false;
 

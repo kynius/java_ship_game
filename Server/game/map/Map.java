@@ -1,14 +1,18 @@
 package Server.game.map;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import Server.game.cell.Cell;
 import Server.game.cell.CellCoordinates;
 
-public abstract class Map<T extends Cell> {
+public abstract class Map<T extends Cell> implements Serializable {
+    private static final long serialVersionUID = 1L;
     protected List<T> _cells;
     private int _size;
+    public Map(){
 
+    }
     public Map(int size) {
         this._cells = new ArrayList<>();
         initialize(size);

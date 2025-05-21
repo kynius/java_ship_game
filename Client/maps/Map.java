@@ -1,8 +1,12 @@
 package Client.maps;
 
+import Client.main.MessageHandler;
+import DTOs.ShipPlacementDto;
 import Server.game.cell.Cell;
 import Server.game.cell.ShipsCell;
 import Client.main.Client;
+import Server.game.utility.Directions;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -16,6 +20,7 @@ public class Map {
     public static ArrayList<String> consoleMessages;
     public static void GeneratePlacingMap(ArrayList<ShipsCell> cells) {
         JFrame frame = Client.frame;
+        frame.getContentPane().removeAll();
         var cellCount = (int) Math.sqrt(cells.size());
         JPanel gridPanel = generateTemplate(cellCount);
         cells.stream()
@@ -27,32 +32,24 @@ public class Map {
                     }
                     JButton cellButton = new JButton();
                     cellButton.setPreferredSize(new Dimension(50, 50));
-                    if(!cell.isPossibleToShip())
+                    if(!cell.isPossibleToShip() && cell.isShip())
                     {
                         cellButton.setBackground(Color.GRAY);
                         cellButton = removeHoverAndClickEffect(cellButton);
-                    } else if (cell.isHit()){
-                        cellButton.setBackground(Color.RED);
-                        cellButton = removeHoverAndClickEffect(cellButton);
-                    }
-                    else if (cell.isHit() && cell.isShip()){
-                        cellButton.setBackground(Color.GREEN);
+                    }else if(!cell.isPossibleToShip())
+                    {
+                        cellButton.setBackground(Color.LIGHT_GRAY);
                         cellButton = removeHoverAndClickEffect(cellButton);
                     }
                     else {
-                        cellButton.setBackground(Color.LIGHT_GRAY);
+                        cellButton.setBackground(Color.WHITE);
                         cellButton.addActionListener(e -> {
-                            try {
-                                System.out.println("Clicked on cell: " + cell.getX() + " " + cell.getY());
-                                Client.out.writeObject(cell.getCoordinates());
-                            } catch (IOException ex) {
-                                throw new RuntimeException(ex);
-                            }
+                            var dto = new ShipPlacementDto(cell.getCoordinates(), Directions.RIGHT);
+                            MessageHandler.sendObject(dto);
                         });
                     }
                     gridPanel.add(cellButton);
                 });
-        frame.getContentPane().removeAll();
         frame.add(gridPanel, BorderLayout.CENTER);
         generateLayout();
     }
@@ -84,13 +81,13 @@ public class Map {
                     gridPanel.add(cellButton);
                 });
         frame.getContentPane().removeAll();
-        frame.add(gridPanel, BorderLayout.CENTER);
         generateLayout();
+        frame.add(gridPanel, BorderLayout.CENTER);
     }
     private static JButton removeHoverAndClickEffect(JButton cellButton){
         cellButton.setFocusPainted(false);
         cellButton.setContentAreaFilled(false);
-        cellButton.setBorderPainted(false);
+//        cellButton.setBorderPainted(false);
         cellButton.setOpaque(true);
         return cellButton;
     }
@@ -114,7 +111,6 @@ public class Map {
         console.setWrapStyleWord(true);
         JScrollPane consoleScrollPane = new JScrollPane(console);
         consoleScrollPane.setBorder(BorderFactory.createTitledBorder("Konsola"));
-        consoleMessages.add("Witaj w grze!");
         consoleMessages.forEach(console::append);
         frame.add(consoleScrollPane, BorderLayout.SOUTH);
         JPanel infoPanel = new JPanel();

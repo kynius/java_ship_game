@@ -3,7 +3,9 @@ package Server.game.utility;
 import Server.game.cell.CellCoordinates;
 import Server.game.utility.ShotStatuses;
 
-public class ShotStatus {
+import java.io.Serializable;
+
+public class ShotStatus implements Serializable {
     private final ShotStatuses status;
     private final CellCoordinates shootCoordinate;
 

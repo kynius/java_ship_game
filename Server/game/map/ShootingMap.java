@@ -14,8 +14,8 @@ public class ShootingMap extends Map<ShootingCell> implements Serializable {
 
     @Override
     protected void initialize(int size) {
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
+        for (int y = 1; y <= size; y++) {
+            for (int x = 1; x <= size; x++) {
                 _cells.add(new ShootingCell(x, y));
             }
         }

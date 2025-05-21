@@ -1,6 +1,8 @@
 package Server.game.utility;
 
-public enum ShotStatuses {
+import java.io.Serializable;
+
+public enum ShotStatuses implements Serializable {
     MISSED,
     SHOT,
     SHOTNDESTORYED;
