@@ -3,7 +3,11 @@ package Server.game.map;
 import Server.game.cell.CellCoordinates;
 import Server.game.cell.ShipsCell;
 
-public class ShipsMap extends Map<ShipsCell> {
+import java.io.Serializable;
+
+public class ShipsMap extends Map<ShipsCell> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public ShipsMap(int size) {
         super(size);

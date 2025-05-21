@@ -2,7 +2,11 @@ package Server.game.map;
 
 import Server.game.cell.ShootingCell;
 
-public class ShootingMap extends Map<ShootingCell> {
+import java.io.Serializable;
+
+public class ShootingMap extends Map<ShootingCell> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public ShootingMap(int size) {
         super(size);

@@ -1,7 +1,6 @@
 package Server.game;
 
 import Server.game.player.Player;
-import Server.game.player.computerPlayer.ComputerPlayer;
 import Server.game.player.humanPlayer.HumanPlayer;
 import Server.game.utility.MapConfigfuration;
 import Server.game.utility.ShotStatuses;
@@ -12,21 +11,16 @@ import java.util.concurrent.CompletableFuture;
 public class Game {
 
     private final Random _random = new Random();
-    private final MapConfigfuration _mapConfig;
     private final Player[] _players = new Player[2];
+    private boolean _wasFirstMoveDone = false;
 
-    public Game(Player playerOne, Player playerTwo, MapConfigfuration mapConfig) {
-        _mapConfig = mapConfig;
-
-        Player human = new HumanPlayer(_mapConfig.getMapSize(), _mapConfig.getShipsConfiguration());
-        Player computer = new ComputerPlayer(_mapConfig.getMapSize(), _mapConfig.getShipsConfiguration());
-
+    public Game(Player playerOne, Player playerTwo, MapConfigfuration mapConfig ) {
         if (_random.nextBoolean()) {
-            _players[0] = human;
-            _players[1] = computer;
+            _players[0] = playerOne;
+            _players[1] = playerTwo;
         } else {
-            _players[0] = computer;
-            _players[1] = human;
+            _players[0] = playerTwo;
+            _players[1] = playerOne;
         }
     }
 
@@ -48,16 +42,21 @@ public class Game {
     }
 
     private void playGame() {
+        if (_players[0] instanceof HumanPlayer && _wasFirstMoveDone) {
+            ((HumanPlayer) _players[0]).sendMessage("Zaczynasz pierwszy, zmarkuj swoj strzal");
+        }  else {
+            ((HumanPlayer) _players[1]).sendMessage("Przeciwnik zaczyna, czekaj na swoją kolej");
+        }
+
         _players[0].makeShoot().thenAccept(shootCoordinates -> {
             var shootResult = _players[1].takeShot(shootCoordinates);
 
-            CompletableFuture<Void> messageDelay;
 
             if (shootResult.getStatus() == ShotStatuses.SHOTNDESTORYED) {
                 if (_players[0] instanceof HumanPlayer) {
-                    messageDelay = sendMessageToClientWithDelay("Trafiłeś i zatopiłeś okręt przeciwnika, wybierz kolejne pole");
+                    ((HumanPlayer) _players[0]).sendMessage("Trafiłeś i zatopiłeś okręt, oddaj kolejny strzał");
                 } else {
-                    messageDelay = CompletableFuture.completedFuture(null);
+                    ((HumanPlayer) _players[1]).sendMessage("Przeciniwk trafił i zatopił twój okręt... Przeciniwk strzela");
                 }
 
                 if (_players[1].getShipsLeftInGame() <= 0) {
@@ -67,22 +66,21 @@ public class Game {
 
             } else if (shootResult.getStatus() == ShotStatuses.SHOT) {
                 if (_players[0] instanceof HumanPlayer) {
-                    messageDelay = sendMessageToClientWithDelay("Trafiłeś, wybierz kolejne pole");
+                    ((HumanPlayer) _players[0]).sendMessage("Trafiłeś , oddaj kolejny strzał");
                 } else {
-                    messageDelay = CompletableFuture.completedFuture(null);
+                    ((HumanPlayer) _players[1]).sendMessage("Przeciniwk trafił... Przeciniwk strzela");
                 }
 
             } else { // MISSED
                 if (_players[0] instanceof HumanPlayer) {
-                    messageDelay = sendMessageToClientWithDelay("Chybiłeś, przeciwnik celuje");
+                    ((HumanPlayer) _players[0]).sendMessage("Chybiłeś... Przeciwnik strzela");
                 } else {
-                    messageDelay = CompletableFuture.completedFuture(null);
+                    ((HumanPlayer) _players[1]).sendMessage("Przeciwnik chybił, twoja kolej ");
                 }
                 switchTurn();
             }
 
             _players[0].getShotInformationReturn(shootResult);
-            messageDelay.thenRun(this::playGame);
         });
     }
 

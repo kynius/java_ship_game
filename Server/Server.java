@@ -1,28 +1,39 @@
+package Server;
+
 import java.io.*;
 import java.net.*;
 
+import Server.game.Game;
+import Server.game.player.computerPlayer.ComputerPlayer;
+import Server.game.player.humanPlayer.HumanPlayer;
+import Server.game.utility.MapConfigfuration;
+
 public class Server {
     public static void main(String[] args) {
-        String serverMessage = "";
-        String clientMessage;
         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))) {
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Połączono z klientem: " + clientSocket.getInetAddress());
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                while ((clientMessage = in.readLine()) != null) {
-                    if(clientMessage.contains("start"))
-                    {
-                        System.out.println("Klient: " + clientMessage.split(";")[1]);
-                        serverMessage = clientMessage.split(";")[1];
-                    }
-                    out.println(serverMessage);
-                }
+            System.out.println("Serwer nasłuchuje na porcie: " + args[0]);
 
-                clientSocket.close();
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Połączono z klientem: " + clientSocket.getInetAddress());
+
+            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+
+            while (true) {
+                Object inputObject = in.readObject();
+
+                if (inputObject instanceof MapConfigfuration config) {
+                    System.out.println("▶ Otrzymano konfigurację mapy od klienta");
+
+                    ComputerPlayer computerPlayer = new ComputerPlayer(config.getMapSize(), config.getShipsConfiguration());
+                    HumanPlayer humanPlayer = new HumanPlayer(config.getMapSize(), config.getShipsConfiguration(), clientSocket);
+                    Game game = new Game(humanPlayer, computerPlayer, config);
+                    game.startGame();
+
+                }
             }
-        } catch (IOException e) {
+
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
