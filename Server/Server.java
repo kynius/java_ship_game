@@ -1,29 +1,39 @@
+import game.cell.ShipsCell;
+
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 public class Server {
+    public static ObjectOutputStream out;
     public static void main(String[] args) {
-        String serverMessage = "";
-        String clientMessage;
+        Object clientMessage;
         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))) {
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Połączono z klientem: " + clientSocket.getInetAddress());
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                while ((clientMessage = in.readLine()) != null) {
-                    if(clientMessage.contains("start"))
-                    {
-                        System.out.println("Klient: " + clientMessage.split(";")[1]);
-                        serverMessage = clientMessage.split(";")[1];
+                Socket socket = serverSocket.accept();
+                System.out.println("Połączono z klientem: " + socket.getInetAddress());
+                out = new ObjectOutputStream(socket.getOutputStream());
+                out.flush();
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                out.writeObject("Witaj na serwerze");
+                // wydmuszka mapy
+                var cells = new ArrayList<ShipsCell>();
+                for (int x = 1; x <= 10; x++) {
+                    for (int y = 1; y <= 10; y++) {
+                        cells.add(new ShipsCell(x, y));
                     }
-                    out.println(serverMessage);
                 }
+                Thread.sleep(2000);
+                out.writeObject(cells);
+                while ((clientMessage = in.readObject()) != null) {
 
-                clientSocket.close();
+                }
+                socket.close();
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }

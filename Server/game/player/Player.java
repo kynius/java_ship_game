@@ -6,6 +6,7 @@ import game.map.ShipsMap;
 import game.utility.ShipsConfiguration;
 import game.utility.ShotStatus;
 import game.utility.ShotStatuses;
+import main.Client;
 
 public abstract class Player {
     protected ShootingMap _shootingMap;
@@ -29,7 +30,7 @@ public abstract class Player {
 
     public abstract void getShotInformationReturn(ShotStatus shotStatus);
 
-    public  ShotStatus takeShot(CellCoordinates coordinates) {
+    public ShotStatus takeShot(CellCoordinates coordinates) {
         if(_shipsMap.hasShipAt(coordinates)) {
            var shootCell = _shipsMap.getCellAt(coordinates);
            shootCell.setHit(true);

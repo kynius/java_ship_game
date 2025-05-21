@@ -1,6 +1,9 @@
 package game.cell;
 
-public abstract class Cell {
+import java.io.Serializable;
+
+public abstract class Cell implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final CellCoordinates coordinates;
     private boolean isHit;
 
