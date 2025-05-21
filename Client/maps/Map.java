@@ -1,12 +1,11 @@
-package maps;
+package Client.maps;
 
-import game.cell.Cell;
-import game.cell.CellCoordinates;
-import game.cell.ShipsCell;
-import game.cell.ShootingCell;
-import main.Client;
+import Server.game.cell.Cell;
+import Server.game.cell.ShipsCell;
+import Client.main.Client;
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -41,7 +40,11 @@ public class Map {
                     cellButton.setPreferredSize(new Dimension(50, 50));
                     cellButton.setBackground(Color.LIGHT_GRAY);
                     cellButton.addActionListener(e -> {
-                        Client.out.writeObject(cell.getCoordinates());
+                        try {
+                            Client.out.writeObject(cell.getCoordinates());
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     });
                     gridPanel.add(cellButton);
                 });

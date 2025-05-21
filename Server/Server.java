@@ -1,4 +1,6 @@
-import game.cell.ShipsCell;
+package Server;
+
+import Server.game.cell.ShipsCell;
 
 import java.io.*;
 import java.net.*;

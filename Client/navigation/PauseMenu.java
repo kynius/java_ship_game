@@ -1,4 +1,4 @@
-package navigation;
+package Client.navigation;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,17 +14,17 @@ public class PauseMenu {
         JButton abandonButton = new JButton("Porzuć grę");
         JButton exitButton = new JButton("Wyjdź do pulpitu");
 
-        resumeButton.addActionListener(_ -> {
+        resumeButton.addActionListener(e -> {
             System.out.println("Gra wznowiona");
             frame.dispose();
         });
 
-        abandonButton.addActionListener(_ -> {
+        abandonButton.addActionListener(e -> {
             System.out.println("Gra porzucona");
             frame.dispose();
         });
 
-        exitButton.addActionListener(_ -> {
+        exitButton.addActionListener(e -> {
             System.out.println("Wyjście do pulpitu");
             System.exit(0);
         });

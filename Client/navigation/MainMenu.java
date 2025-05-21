@@ -1,6 +1,6 @@
-package navigation;
+package Client.navigation;
 
-import main.Client;
+import Client.main.Client;
 import javax.swing.*;
 import java.awt.*;
 
@@ -25,7 +25,7 @@ public class MainMenu implements Menu {
             var exitButton = new JButton("Wyjdź");
             exitButton.setFont(new Font("Arial", Font.PLAIN, 36));
 
-            startGameButton.addActionListener(_ -> {
+            startGameButton.addActionListener(e -> {
                     var sizeFrame = new JFrame("Wybierz wielkość planszy");
                     sizeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     sizeFrame.setSize(400, 100);
@@ -33,7 +33,7 @@ public class MainMenu implements Menu {
                     for (int i = 5; i <= 10; i++) {
                             var button = new JButton("" + i);
                             int finalI = i;
-                            button.addActionListener(_ -> {
+                            button.addActionListener(event -> {
                                     sizeFrame.dispose();
                             });
                             sizeFrame.add(button);
@@ -41,13 +41,13 @@ public class MainMenu implements Menu {
                     sizeFrame.setVisible(true);
                     sizeFrame.setLocationRelativeTo(null);
             });
-            configButton.addActionListener(_ -> {
+            configButton.addActionListener(e -> {
                     frame.getContentPane().removeAll();
                     ConfigMenu.displayMenu();
                     frame.revalidate();
                     frame.repaint();
             });
-            exitButton.addActionListener(_ -> System.exit(0));
+            exitButton.addActionListener(e -> System.exit(0));
 
             buttonPanel.add(startGameButton);
             buttonPanel.add(configButton);

@@ -1,6 +1,6 @@
-package navigation;
+package Client.navigation;
 
-import main.Client;
+import Client.main.Client;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,15 +21,15 @@ public class ConfigMenu implements Menu {
         JButton exitButton = new JButton("Powrót do menu głównego");
         exitButton.setFont(new Font("Arial", Font.PLAIN, 36));
 
-        configListButton.addActionListener(_ -> {
+        configListButton.addActionListener(e -> {
             // TODO
         });
 
-        fileConfigButton.addActionListener(_ -> {
+        fileConfigButton.addActionListener(e -> {
             // TODO
         });
 
-        exitButton.addActionListener(_ -> {
+        exitButton.addActionListener(e -> {
             frame.getContentPane().removeAll();
             MainMenu.displayMenu();
             frame.revalidate();

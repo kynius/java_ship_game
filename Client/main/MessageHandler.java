@@ -1,8 +1,8 @@
-package main;
+package Client.main;
 
-import game.cell.ShipsCell;
-import game.cell.ShootingCell;
-import maps.Map;
+import Server.game.cell.ShipsCell;
+import Server.game.cell.ShootingCell;
+import Client.maps.Map;
 
 import java.util.ArrayList;
 

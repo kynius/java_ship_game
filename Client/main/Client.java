@@ -1,6 +1,6 @@
-package main;
+package Client.main;
 
-import navigation.MainMenu;
+import Client.navigation.MainMenu;
 
 import java.io.*;
 import java.net.*;
