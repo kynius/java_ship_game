@@ -1,7 +1,6 @@
 package navigation;
 
 import main.Client;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -35,7 +34,6 @@ public class MainMenu implements Menu {
                             var button = new JButton("" + i);
                             int finalI = i;
                             button.addActionListener(_ -> {
-                                    Client.out.println("start;" + finalI);
                                     sizeFrame.dispose();
                             });
                             sizeFrame.add(button);
