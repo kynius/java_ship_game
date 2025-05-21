@@ -14,10 +14,6 @@ public class ShipPlacementRequestDto implements Serializable {
         this.shipId = shipId;
         this.shipLength = shipLength;
         this.shipMap = shipMap;
-        System.out.println("Konstruktor");
-        shipMap.get_cells().forEach(c -> {
-            System.out.println(c.isPossibleToShip());
-        });
     }
 
     public int getShipId() {

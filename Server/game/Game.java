@@ -15,13 +15,16 @@ public class Game {
     private boolean _wasFirstMoveDone = false;
 
     public Game(Player playerOne, Player playerTwo, MapConfigfuration mapConfig ) {
-        if (_random.nextBoolean()) {
-            _players[0] = playerOne;
-            _players[1] = playerTwo;
-        } else {
-            _players[0] = playerTwo;
-            _players[1] = playerOne;
-        }
+        _players[0] = playerTwo;
+        _players[1] = playerOne;
+
+        //        if (_random.nextBoolean()) {
+//            _players[0] = playerOne;
+//            _players[1] = playerTwo;
+//        } else {
+//            _players[0] = playerTwo;
+//            _players[1] = playerOne;
+//        }
     }
 
     private void switchTurn() {
@@ -49,6 +52,7 @@ public class Game {
         }
 
         _players[0].makeShoot().thenAccept(shootCoordinates -> {
+
             var shootResult = _players[1].takeShot(shootCoordinates);
 
 
@@ -76,6 +80,12 @@ public class Game {
                     ((HumanPlayer) _players[0]).sendMessage("Chybiłeś... Przeciwnik strzela");
                 } else {
                     ((HumanPlayer) _players[1]).sendMessage("Przeciwnik chybił, twoja kolej ");
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        System.err.println("Sleep interrupted: " + e.getMessage());
+                    }
                 }
                 switchTurn();
             }

@@ -16,7 +16,6 @@ public class Client {
         try (Socket socket = new Socket(args[0], Integer.parseInt(args[1]))) {
             Map.consoleMessages = new ArrayList<String>();
             frame = new JFrame("JAVA SHIP GAME");
-            System.out.println("Połączono z serwerem");
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(socket.getInputStream());

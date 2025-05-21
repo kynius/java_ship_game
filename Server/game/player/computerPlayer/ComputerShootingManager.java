@@ -30,7 +30,7 @@ public class ComputerShootingManager {
     }
 
     public CellCoordinates shoot() {
-        if(_isDestroying) {
+        if(!_isDestroying) {
             return ShootRandomCell();
         }
         else {

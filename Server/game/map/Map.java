@@ -42,9 +42,9 @@ public abstract class Map<T extends Cell> implements Serializable {
 
     public boolean areCoordinatesInBounds(CellCoordinates coordinates) {
         return coordinates.getX() > 0 &&
-                coordinates.getX() < _size - 1&&
+                coordinates.getX() <= _size &&
                 coordinates.getY() > 0 &&
-                coordinates.getY() < _size - 1;
+                coordinates.getY() <= _size;
     }
 
     protected abstract void initialize(int size);

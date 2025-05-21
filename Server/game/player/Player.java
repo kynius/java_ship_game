@@ -38,9 +38,9 @@ public abstract class Player {
     public abstract void getShotInformationReturn(ShotStatus shotStatus);
 
     public ShotStatus takeShot(CellCoordinates coordinates) {
+        var shootCell = _shipsMap.getCellAt(coordinates);
+        shootCell.setHit(true);
         if (_shipsMap.hasShipAt(coordinates)) {
-            var shootCell = _shipsMap.getCellAt(coordinates);
-            shootCell.setHit(true);
             if (_shipsMap.hasUnhitCellOfShip(shootCell.getShipId())) {
                 return new ShotStatus(ShotStatuses.SHOT, coordinates);
             } else {

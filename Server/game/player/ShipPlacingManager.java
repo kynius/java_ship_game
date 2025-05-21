@@ -33,6 +33,7 @@ public class ShipPlacingManager {
         if(isPossbile) {
             shipCells.add(_map.getCellAt(coordinates));
             markAsShip(shipCells, id);
+            markSurroundingCellsBlocked(shipCells);
         }
         return isPossbile;
     }

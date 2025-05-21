@@ -15,17 +15,14 @@ public class PauseMenu {
         JButton exitButton = new JButton("Wyjdź do pulpitu");
 
         resumeButton.addActionListener(e -> {
-            System.out.println("Gra wznowiona");
             frame.dispose();
         });
 
         abandonButton.addActionListener(e -> {
-            System.out.println("Gra porzucona");
             frame.dispose();
         });
 
         exitButton.addActionListener(e -> {
-            System.out.println("Wyjście do pulpitu");
             System.exit(0);
         });
 

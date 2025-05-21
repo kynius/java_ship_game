@@ -26,11 +26,11 @@ public class HumanPlayer extends Player { ;
 
     public HumanPlayer(int mapSize, ShipsConfiguration shipsConfiguration) throws IOException {
         super(mapSize, shipsConfiguration);
-        System.out.println();
     }
 
     @Override
     public CompletableFuture<CellCoordinates> makeShoot() {
+        System.out.println("human player shoots");
         pendingShot = new CompletableFuture<>();
         sendMessage(_shootingMap);
         return pendingShot;
@@ -38,6 +38,7 @@ public class HumanPlayer extends Player { ;
 
     @Override
     public CompletableFuture<Void> placeShips() {
+        System.out.println("human player places ships");
         this.pendingPlacement = new CompletableFuture<>();
         this.shipsLeftToPlace = _shipsConfiguration.countAllShips();
         this.currentShipId = 1;
@@ -53,29 +54,17 @@ public class HumanPlayer extends Player { ;
 
     @Override
     public ShotStatus takeShot(CellCoordinates coordinates) {
-        ShotStatus result = super.takeShot(coordinates); // call base logic
+        ShotStatus result = super.takeShot(coordinates);
+        System.out.println("human takes shot");
         sendMessage(_shipsMap);
         return result;
     }
-
-//    private void startListening() {
-//        new Thread(() -> {
-//            try {
-//                while (true) {
-//                    Object message = in.readObject();
-//                    handleMessage(message);
-//                }
-//            } catch (IOException | ClassNotFoundException e) {
-//                System.err.println("Connection lost or invalid object: " + e.getMessage());
-//            }
-//        }).start();
-//    }
 
     public void handleMessage(Object message) {
         if (message instanceof CellCoordinates coords) {
             onPlayerShootReceived(coords);
         } else if (message instanceof ShipPlacementDto placement) {
-            System.out.println("Uruchomiono handleShipPlacementResponse");
+            System.out.println("Received ship placement");
             handleShipPlacementResponse(placement);
         } else {
             throw new RuntimeException("Object not acceptable: " + message.getClass());
@@ -99,7 +88,7 @@ public class HumanPlayer extends Player { ;
         );
 
         if (!placed) {
-            sendMessage("SHIP_PLACEMENT_FAILED: Cannot place ship at that location.");
+            sendMessage("Nie możesz tutaj postawić statku. Wychodzi poza mapę lub koliduje z innym statkiem");
             return;
         }
 
@@ -107,12 +96,12 @@ public class HumanPlayer extends Player { ;
         currentShipId++;
 
         if (shipsLeftToPlace == 0) {
-            System.out.println("nie ma statkow");
+            System.out.println("no ships to place, starts shooting phase");
+            sendMessage(_shipsMap);
             pendingPlacement.complete(null);
         } else {
             int placedSoFar = _shipsConfiguration.countAllShips() - shipsLeftToPlace;
             currentShipLength = calculateShipLengthForIndex(placedSoFar);
-
             sendCurrentShipRequest();
         }
     }
@@ -148,11 +137,11 @@ public class HumanPlayer extends Player { ;
             Server.out.reset();
             Server.out.writeObject(message);
             Server.out.flush();
-            Thread.sleep(5000); // wait 5 seconds after sending
+            Thread.sleep(1);
         } catch (IOException e) {
             System.err.println("Failed to send message to client: " + e.getMessage());
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // good practice to restore interrupt flag
+            Thread.currentThread().interrupt();
             System.err.println("Sleep interrupted: " + e.getMessage());
         }
     }

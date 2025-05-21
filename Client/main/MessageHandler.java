@@ -4,6 +4,8 @@ import DTOs.ShipPlacementRequestDto;
 import Server.game.cell.ShipsCell;
 import Server.game.cell.ShootingCell;
 import Client.maps.Map;
+import Server.game.map.ShipsMap;
+import Server.game.map.ShootingMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,7 +13,6 @@ import java.util.ArrayList;
 public class MessageHandler {
     public static void sendObject(Object object) {
         try {
-            System.out.println(object);
             Client.out.writeObject(object);
             Client.out.flush();
         } catch (IOException e) {
@@ -31,28 +32,24 @@ public class MessageHandler {
         }
         if (message instanceof ShipPlacementRequestDto)
         {
-            System.out.println("Ship Placement Request");
             var shipPlacementRequestDto = (ShipPlacementRequestDto) message;
             var shipmap = shipPlacementRequestDto.getShipmap();
             var cells = (ArrayList<ShipsCell>) shipmap.get_cells();
             Map.GeneratePlacingMap(cells);
         }
-        if (message instanceof ArrayList<?> && ((ArrayList<?>) message).size() > 0&& ((ArrayList<?>) message).get(0) instanceof ShootingCell)
+        if(message instanceof ShipsMap)
         {
-            ArrayList<ShootingCell> cells = (ArrayList<ShootingCell>) message;
-            System.out.println("Otrzymano listę ShipsCell:");
-            cells.forEach(shootingCell -> {
-                if(shootingCell.isShot() && shootingCell.isAimed()){
-                    //trafiony
-                }
-                else if(shootingCell.isShot() && !shootingCell.isAimed()){
-                    //pudło
-                }
-                else {
-                    //nie strzelano
-                }
-            });
-//            Map.GeneretateMap(cells);
+            System.out.println("ShipsMap");
+            var shipmap = (ShipsMap) message;
+            var cells = (ArrayList<ShipsCell>) shipmap.get_cells();
+            Map.GenerateComputerShootMap(cells);
+        }
+        if (message instanceof ShootingMap)
+        {
+            System.out.println("ShootingMap");
+            var shootingMap = (ShootingMap) message;
+            var cells = (ArrayList<ShootingCell>) shootingMap.get_cells();
+            Map.GeneratePlayerShootMap(cells);
         }
     }
 }

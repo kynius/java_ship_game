@@ -23,6 +23,7 @@ public class ComputerPlayer extends Player {
 
     @Override
     public CompletableFuture<CellCoordinates> makeShoot() {
+        System.out.println("computer player shoots");
         _shotsMade++;
         CellCoordinates coords = _computerShootingManager.shoot();
         return CompletableFuture.completedFuture(coords);
@@ -30,6 +31,7 @@ public class ComputerPlayer extends Player {
 
     @Override
     public CompletableFuture<Void> placeShips() {
+        System.out.println("computer player places ships");
         int[] shipsPerLength = _shipsConfiguration.getShipAmounts();
         int shipId = 1;
 

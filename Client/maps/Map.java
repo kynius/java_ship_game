@@ -5,6 +5,8 @@ import DTOs.ShipPlacementDto;
 import Server.game.cell.Cell;
 import Server.game.cell.ShipsCell;
 import Client.main.Client;
+import Server.game.cell.ShootingCell;
+import Server.game.map.ShootingMap;
 import Server.game.utility.Directions;
 
 import javax.swing.*;
@@ -15,13 +17,13 @@ import java.util.Comparator;
 
 // Podzielić na 3 mapy, ShipsCell - Stawianie statków, ShipsCell - Strzały przeciwnika, ShootingCell - strzały gracza
 
-
 public class Map {
+    private static int cellCount;
     public static ArrayList<String> consoleMessages;
     public static void GeneratePlacingMap(ArrayList<ShipsCell> cells) {
         JFrame frame = Client.frame;
         frame.getContentPane().removeAll();
-        var cellCount = (int) Math.sqrt(cells.size());
+        cellCount = (int) Math.sqrt(cells.size());
         JPanel gridPanel = generateTemplate(cellCount);
         cells.stream()
                 .sorted(Comparator.comparingInt((ShipsCell cell) -> cell.getY()).thenComparingInt(Cell::getX))
@@ -44,6 +46,7 @@ public class Map {
                     else {
                         cellButton.setBackground(Color.WHITE);
                         cellButton.addActionListener(e -> {
+                            System.out.println("WYSYŁA DTO");
                             var dto = new ShipPlacementDto(cell.getCoordinates(), Directions.RIGHT);
                             MessageHandler.sendObject(dto);
                         });
@@ -55,7 +58,7 @@ public class Map {
     }
     public static void GenerateComputerShootMap(ArrayList<ShipsCell> cells){
         JFrame frame = Client.frame;
-        var cellCount = (int) Math.sqrt(cells.size());
+        frame.getContentPane().removeAll();
         JPanel gridPanel = generateTemplate(cellCount);
         cells.stream()
                 .sorted(Comparator.comparingInt((ShipsCell cell) -> cell.getY()).thenComparingInt(Cell::getX))
@@ -66,28 +69,44 @@ public class Map {
                     }
                     JButton cellButton = new JButton();
                     cellButton.setPreferredSize(new Dimension(50, 50));
-                    if(cell.isHit() && !cell.isShip())
+                    cellButton = removeHoverAndClickEffect(cellButton);
+                    if(cell.isShip() && cell.isHit())
                     {
                         cellButton.setBackground(Color.RED);
-                        cellButton = removeHoverAndClickEffect(cellButton);
-                    }else if(cell.isHit() && cell.isShip()){
-                        cellButton.setBackground(Color.GREEN);
-                        cellButton = removeHoverAndClickEffect(cellButton);
+                    }
+                    else if(cell.isShip()){
+                        cellButton.setBackground(Color.GRAY);
+                    }
+                    else if(!cell.isShip() && cell.isHit()){
+                        cellButton.setBackground(Color.BLACK);
                     }
                     else {
-                        cellButton.setBackground(Color.LIGHT_GRAY);
-                        cellButton = removeHoverAndClickEffect(cellButton);
+                        cellButton.setBackground(Color.WHITE);
                     }
                     gridPanel.add(cellButton);
                 });
-        frame.getContentPane().removeAll();
-        generateLayout();
         frame.add(gridPanel, BorderLayout.CENTER);
+        generateLayout();
     }
+    public static void GeneratePlayerShootMap(ArrayList<ShootingCell> cells){
+        JFrame frame = Client.frame;
+        frame.getContentPane().removeAll();
+    }
+    private static void disableAllButtons(JPanel gridPanel){
+        ArrayList<JButton> buttons = new ArrayList<>();
+        for (Component component : gridPanel.getComponents()) {
+            if (component instanceof JButton) {
+                removeHoverAndClickEffect((JButton) component);
+                Client.frame.revalidate();
+                Client.frame.repaint();
+            }
+        }
+    }
+
     private static JButton removeHoverAndClickEffect(JButton cellButton){
         cellButton.setFocusPainted(false);
         cellButton.setContentAreaFilled(false);
-//        cellButton.setBorderPainted(false);
+        cellButton.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         cellButton.setOpaque(true);
         return cellButton;
     }
@@ -111,7 +130,7 @@ public class Map {
         console.setWrapStyleWord(true);
         JScrollPane consoleScrollPane = new JScrollPane(console);
         consoleScrollPane.setBorder(BorderFactory.createTitledBorder("Konsola"));
-        consoleMessages.forEach(console::append);
+        consoleMessages.forEach(message -> console.append(message + "\n"));
         frame.add(consoleScrollPane, BorderLayout.SOUTH);
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));

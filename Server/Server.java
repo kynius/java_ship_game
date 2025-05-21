@@ -13,10 +13,8 @@ public class Server {
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))) {
-            System.out.println("Serwer nasłuchuje na porcie: " + args[0]);
 
             Socket clientSocket = serverSocket.accept();
-            System.out.println("Połączono z klientem: " + clientSocket.getInetAddress());
 
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
