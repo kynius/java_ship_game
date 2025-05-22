@@ -10,19 +10,20 @@ import Server.game.utility.ShotStatuses;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 public class DestroyMechanism {
     private Boolean _isShipDirectionDetermined = false;
     private final List<CellCoordinates> _shipToBeDestroyed;
-    private final List<ShootingCell> _cellsLeftToShoot;
+    private final ShootingMap _cellsLeftToShoot;
     private final ShootingMap _shootingMap;
     private final List<Directions> _directionsLeftToShoot;
     private Directions _lastUsedDriection = null;
-    private final ShotStatus _lastShotStatus;
-    private final java.util.Random _random = new java.util.Random();
+    private  ShotStatus  _lastShotStatus;
+    private final Random _random = new Random();
 
     public DestroyMechanism(
-                            List<ShootingCell> cellsLeftToShoot,
+                            ShootingMap cellsLeftToShoot,
                             ShootingMap shootingMap,
                             ShotStatus shotStatus) {
         this._shipToBeDestroyed = new ArrayList<>();
@@ -54,7 +55,7 @@ public class DestroyMechanism {
 
             if (validateCellCoordinatesForShot(cellToShootCoordinates)) {
                 _lastUsedDriection = direction;
-                _cellsLeftToShoot.removeIf(cell -> cell.getCoordinates().equals(cellToShootCoordinates));
+                _cellsLeftToShoot.removeCellAt(cellToShootCoordinates);
                 return cellToShootCoordinates;
             } else {
                 _directionsLeftToShoot.remove(direction);
@@ -69,8 +70,7 @@ public class DestroyMechanism {
 
     private boolean validateCellCoordinatesForShot(CellCoordinates cellCoordinates) {
         return _shootingMap.areCoordinatesInBounds(cellCoordinates)
-                && _cellsLeftToShoot.stream()
-                .anyMatch(cell -> cell.getCoordinates().equals(cellCoordinates));
+                && _cellsLeftToShoot.getCellAt(cellCoordinates) != null;
     }
 
     private void determineShipDirection() {
@@ -119,6 +119,12 @@ public class DestroyMechanism {
                 yield new CellCoordinates(right.getX() + 1, right.getY());
             }
         };
+    }
+
+    public void removeNeighborsOfShipToBeDestroyed() {
+        for (CellCoordinates coordinate : _shipToBeDestroyed) {
+            _cellsLeftToShoot.removeCellsAround(coordinate);
+        }
     }
 
 }

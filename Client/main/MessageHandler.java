@@ -39,14 +39,12 @@ public class MessageHandler {
         }
         if(message instanceof ShipsMap)
         {
-            System.out.println("ShipsMap");
             var shipmap = (ShipsMap) message;
             var cells = (ArrayList<ShipsCell>) shipmap.get_cells();
             Map.GenerateComputerShootMap(cells);
         }
         if (message instanceof ShootingMap)
         {
-            System.out.println("ShootingMap");
             var shootingMap = (ShootingMap) message;
             var cells = (ArrayList<ShootingCell>) shootingMap.get_cells();
             Map.GeneratePlayerShootMap(cells);

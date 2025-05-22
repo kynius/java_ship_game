@@ -7,6 +7,7 @@ import Server.game.cell.CellCoordinates;
 import Server.game.player.Player;
 import Server.game.utility.ShipsConfiguration;
 import Server.game.utility.ShotStatus;
+import Server.game.utility.ShotStatuses;
 
 import java.io.*;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +31,6 @@ public class HumanPlayer extends Player { ;
 
     @Override
     public CompletableFuture<CellCoordinates> makeShoot() {
-        System.out.println("human player shoots");
         pendingShot = new CompletableFuture<>();
         sendMessage(_shootingMap);
         return pendingShot;
@@ -38,7 +38,6 @@ public class HumanPlayer extends Player { ;
 
     @Override
     public CompletableFuture<Void> placeShips() {
-        System.out.println("human player places ships");
         this.pendingPlacement = new CompletableFuture<>();
         this.shipsLeftToPlace = _shipsConfiguration.countAllShips();
         this.currentShipId = 1;
@@ -49,13 +48,16 @@ public class HumanPlayer extends Player { ;
 
     @Override
     public void getShotInformationReturn(ShotStatus shotStatus) {
+        if(shotStatus.getStatus() == ShotStatuses.SHOT || shotStatus.getStatus() == ShotStatuses.SHOTNDESTORYED) {
+            var shootCell = _shootingMap.getCellAt(shotStatus.getShootCoordinate());
+            shootCell.setIsAimed(true);
+        }
         sendMessage(_shootingMap);
     }
 
     @Override
     public ShotStatus takeShot(CellCoordinates coordinates) {
         ShotStatus result = super.takeShot(coordinates);
-        System.out.println("human takes shot");
         sendMessage(_shipsMap);
         return result;
     }
@@ -64,7 +66,6 @@ public class HumanPlayer extends Player { ;
         if (message instanceof CellCoordinates coords) {
             onPlayerShootReceived(coords);
         } else if (message instanceof ShipPlacementDto placement) {
-            System.out.println("Received ship placement");
             handleShipPlacementResponse(placement);
         } else {
             throw new RuntimeException("Object not acceptable: " + message.getClass());
@@ -73,6 +74,8 @@ public class HumanPlayer extends Player { ;
 
     public void onPlayerShootReceived(CellCoordinates coordinates) {
         if (pendingShot != null && !pendingShot.isDone()) {
+            var shotCell = _shootingMap.getCellAt(coordinates);
+            shotCell.setShot(true);
             pendingShot.complete(coordinates);
         }
     }
@@ -96,7 +99,6 @@ public class HumanPlayer extends Player { ;
         currentShipId++;
 
         if (shipsLeftToPlace == 0) {
-            System.out.println("no ships to place, starts shooting phase");
             sendMessage(_shipsMap);
             pendingPlacement.complete(null);
         } else {

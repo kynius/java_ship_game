@@ -97,6 +97,7 @@ public class ShipPlacingManager {
         for (ShipsCell cell : cells) {
             cell.setShip(true);
             cell.setPossibleToShip(false);
+            cell.setShipId(id);
         }
     }
 

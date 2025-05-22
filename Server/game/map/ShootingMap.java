@@ -12,6 +12,14 @@ public class ShootingMap extends Map<ShootingCell> implements Serializable {
         super(size);
     }
 
+    public ShootingMap(ShootingMap other) {
+        super(other.getSize());
+        this._cells.clear(); // Clear what super() added
+        for (ShootingCell cell : other.get_cells()) {
+            this._cells.add(new ShootingCell(cell)); // assumes ShootingCell has a copy constructor
+        }
+    }
+
     @Override
     protected void initialize(int size) {
         for (int y = 1; y <= size; y++) {

@@ -1,17 +1,13 @@
 package Server.game.player.computerPlayer;
-
 import Server.game.cell.CellCoordinates;
-import Server.game.cell.ShootingCell;
 import Server.game.map.ShootingMap;
 import Server.game.utility.ShotStatus;
-
-import java.util.ArrayList;
-import java.util.List;
+import Server.game.utility.ShotStatuses;
 import java.util.Random;
 
 public class ComputerShootingManager {
     private final ShootingMap _shootingMap;
-    private final List<ShootingCell> _cellsLeftToShoot;
+    private final ShootingMap _cellsLeftToShoot;
     private DestroyMechanism _destroyMechanism;
     private final Random _random = new Random();
     private final ShotStatus _lastShotStatus;
@@ -20,9 +16,9 @@ public class ComputerShootingManager {
 
     public ComputerShootingManager(ShootingMap shootingMap, ShotStatus lastShotStatus) {
         this._shootingMap = shootingMap;
-        this._cellsLeftToShoot = new ArrayList<>(shootingMap.get_cells());
-        this._destroyMechanism = new DestroyMechanism(_cellsLeftToShoot, _shootingMap, lastShotStatus);
+        this._cellsLeftToShoot = new ShootingMap(_shootingMap);
         this._lastShotStatus = lastShotStatus;
+        this._destroyMechanism = new DestroyMechanism(_cellsLeftToShoot, _shootingMap, this._lastShotStatus);
     }
 
     public void setIsDestroying(boolean isDestroying) {
@@ -39,6 +35,9 @@ public class ComputerShootingManager {
     }
 
     private CellCoordinates ShootRandomCell() {
+        if(_lastShotStatus.getStatus() == ShotStatuses.SHOTNDESTORYED) {
+            _cellsLeftToShoot.removeCellsAround(_lastShotStatus.getShootCoordinate());
+        }
         var cellCoordinates = GetRandomTargetCoordinates();
         RemoveFromShootable(cellCoordinates);
         _shootingMap.getCellAt(cellCoordinates).setShot(true);
@@ -46,17 +45,18 @@ public class ComputerShootingManager {
     }
 
     private CellCoordinates GetRandomTargetCoordinates() {
-        if (_cellsLeftToShoot.isEmpty()) return null;
 
-        int index = _random.nextInt(_cellsLeftToShoot.size());
-        return _cellsLeftToShoot.get(index).getCoordinates();
+        int index = _random.nextInt(_cellsLeftToShoot.get_cells().size());
+        return _cellsLeftToShoot.getCellAtIndex(index).getCoordinates();
     }
 
     private void RemoveFromShootable(CellCoordinates coordinates) {
-        _cellsLeftToShoot.removeIf(cell -> cell.getCoordinates().equals(coordinates));
+        _cellsLeftToShoot.removeCellAt(coordinates);
     }
 
-    private void ResetDestroyer() {
+    public void ResetDestroyer() {
+        _isDestroying = false;
+        _destroyMechanism.removeNeighborsOfShipToBeDestroyed();
         _destroyMechanism = new DestroyMechanism(_cellsLeftToShoot, _shootingMap, _lastShotStatus);
     }
 }

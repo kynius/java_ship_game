@@ -40,4 +40,7 @@ public class ShipsCell extends Cell implements Serializable {
     public Integer getShipId() {
         return this.shipId;
     }
+    public void setShipId(Integer shipId) {
+        this.shipId = shipId;
+    }
 }

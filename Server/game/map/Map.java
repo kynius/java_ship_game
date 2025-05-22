@@ -47,5 +47,27 @@ public abstract class Map<T extends Cell> implements Serializable {
                 coordinates.getY() <= _size;
     }
 
+
+    public void removeCellAt(CellCoordinates coordinates) {
+        _cells.removeIf(cell -> cell.getCoordinates().equals(coordinates));
+    }
+
+    public void removeCellsAround(CellCoordinates center) {
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) continue; // skip center cell
+                CellCoordinates neighbor = new CellCoordinates(center.getX() + dx, center.getY() + dy);
+                removeCellAt(neighbor);
+            }
+        }
+    }
+
+    public T getCellAtIndex(int index) {
+        if (index < 0 || index >= _cells.size()) {
+            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds.");
+        }
+        return _cells.get(index);
+    }
+    
     protected abstract void initialize(int size);
 }

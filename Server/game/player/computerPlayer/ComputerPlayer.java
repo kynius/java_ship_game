@@ -14,7 +14,7 @@ public class ComputerPlayer extends Player {
 
     private final Random _random = new Random();
     private final ComputerShootingManager _computerShootingManager;
-    private ShotStatus _lastShotStatus = null;
+    private ShotStatus _lastShotStatus = new ShotStatus();
 
     public ComputerPlayer(int mapSize, ShipsConfiguration shipsConfiguration) {
         super(mapSize, shipsConfiguration);
@@ -23,7 +23,6 @@ public class ComputerPlayer extends Player {
 
     @Override
     public CompletableFuture<CellCoordinates> makeShoot() {
-        System.out.println("computer player shoots");
         _shotsMade++;
         CellCoordinates coords = _computerShootingManager.shoot();
         return CompletableFuture.completedFuture(coords);
@@ -31,7 +30,6 @@ public class ComputerPlayer extends Player {
 
     @Override
     public CompletableFuture<Void> placeShips() {
-        System.out.println("computer player places ships");
         int[] shipsPerLength = _shipsConfiguration.getShipAmounts();
         int shipId = 1;
 
@@ -43,15 +41,15 @@ public class ComputerPlayer extends Player {
                 boolean placed = false;
 
                 while (!placed) {
-                    int x = _random.nextInt(_shipsMap.getSize());
-                    int y = _random.nextInt(_shipsMap.getSize());
+                    int x = _random.nextInt(_shipsMap.getSize()) + 1;
+                    int y = _random.nextInt(_shipsMap.getSize()) + 1;
                     Directions direction = Directions.getRandom();
-
                     CellCoordinates coords = new CellCoordinates(x, y);
                     placed = _shipPlacingManager.placeShip(shipLength, coords, direction, shipId);
                 }
                 shipId++;
             }
+
         }
 
         return CompletableFuture.completedFuture(null);
@@ -59,9 +57,8 @@ public class ComputerPlayer extends Player {
 
     @Override
     public void getShotInformationReturn(ShotStatus shotStatus) {
-        _lastShotStatus = shotStatus;
+        _lastShotStatus.updateFrom(shotStatus);
         var cellToMark = this._shootingMap.getCellAt(shotStatus.getShootCoordinate());
-
         cellToMark.setShot(true);
 
         if (shotStatus.getStatus() != ShotStatuses.MISSED) {
@@ -71,6 +68,7 @@ public class ComputerPlayer extends Player {
                 _computerShootingManager.setIsDestroying(true);
             } else if (shotStatus.getStatus() == ShotStatuses.SHOTNDESTORYED) {
                 _computerShootingManager.setIsDestroying(false);
+                _computerShootingManager.ResetDestroyer();
             }
         }
     }
