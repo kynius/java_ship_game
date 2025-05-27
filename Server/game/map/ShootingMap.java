@@ -28,9 +28,9 @@ public class ShootingMap extends Map<ShootingCell> implements Serializable {
      */
     public ShootingMap(ShootingMap other) {
         super(other.getSize());
-        this._cells.clear(); // Clear initialized cells from super constructor
+        this._cells.clear();
         for (ShootingCell cell : other.get_cells()) {
-            this._cells.add(new ShootingCell(cell)); // assumes copy constructor exists
+            this._cells.add(new ShootingCell(cell)); 
         }
     }
 

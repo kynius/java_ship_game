@@ -17,7 +17,6 @@ public class ShipsConfiguration implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private final int[] shipAmounts;
-
     /**
      * Creates a ship configuration with variable ship lengths.
      * The first element is the number of ships with the longest size.
@@ -25,7 +24,7 @@ public class ShipsConfiguration implements Serializable {
      * @param shipAmounts array of ship counts ordered from longest to shortest ship size
      */
     public ShipsConfiguration(int[] shipAmounts) {
-        this.shipAmounts = shipAmounts.clone(); // defensive copy
+        this.shipAmounts = shipAmounts.clone();
     }
 
     /**
@@ -35,7 +34,7 @@ public class ShipsConfiguration implements Serializable {
      * @return array of ship counts
      */
     public int[] getShipAmounts() {
-        return shipAmounts.clone(); // return a copy to preserve immutability
+        return shipAmounts.clone();
     }
 
     /**
