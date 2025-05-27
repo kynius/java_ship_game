@@ -1,0 +1,14 @@
+unnamed package
+Client.main
+Client.maps
+Client.navigation
+DTOs
+RequestClasses
+Server
+Server.game
+Server.game.cell
+Server.game.map
+Server.game.player
+Server.game.player.computerPlayer
+Server.game.player.humanPlayer
+Server.game.utility

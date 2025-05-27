@@ -1,7 +1,6 @@
 package Server.game.player.humanPlayer;
 
 import DTOs.ScoreDto;
-import DTOs.ScoreboardDto;
 import DTOs.ShipPlacementDto;
 import DTOs.ShipPlacementRequestDto;
 import RequestClasses.PauseStartRequest;
@@ -15,10 +14,14 @@ import Server.game.utility.ShipsConfiguration;
 import Server.game.utility.ShotStatus;
 import Server.game.utility.ShotStatuses;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-public class HumanPlayer extends Player { ;
+/**
+ * Represents a human player in the game.
+ * Handles interaction with the client via object messages and manages player input like shooting and ship placement.
+ */
+public class HumanPlayer extends Player {
 
     private CompletableFuture<CellCoordinates> pendingShot;
     private CompletableFuture<Void> pendingPlacement;
@@ -29,15 +32,28 @@ public class HumanPlayer extends Player { ;
     private long pauseTime = 0;
     private long pauseStartTimestamp = 0;
 
-
-    public HumanPlayer(){
-
+    /**
+     * Default constructor.
+     */
+    public HumanPlayer() {
     }
 
+    /**
+     * Constructs a human player with a given map size and ship configuration.
+     *
+     * @param mapSize the size of the game map
+     * @param shipsConfiguration the configuration of ships
+     * @throws IOException if sending initial state fails
+     */
     public HumanPlayer(int mapSize, ShipsConfiguration shipsConfiguration) throws IOException {
         super(mapSize, shipsConfiguration);
     }
 
+    /**
+     * Initiates the shooting process for the player and returns a future to await player input.
+     *
+     * @return a future that completes when the player makes a move
+     */
     @Override
     public CompletableFuture<CellCoordinates> makeShoot() {
         pendingShot = new CompletableFuture<>();
@@ -46,25 +62,41 @@ public class HumanPlayer extends Player { ;
         return pendingShot;
     }
 
+    /**
+     * Begins the ship placement process for the player.
+     *
+     * @return a future that completes when all ships are placed
+     */
     @Override
     public CompletableFuture<Void> placeShips() {
         this.pendingPlacement = new CompletableFuture<>();
         this.shipsLeftToPlace = _shipsConfiguration.countAllShips();
         this.currentShipId = 1;
-        this.currentShipLength = calculateShipLengthForIndex(0); // first ship
+        this.currentShipLength = calculateShipLengthForIndex(0);
         sendCurrentShipRequest();
         return pendingPlacement;
     }
 
+    /**
+     * Processes the result of a shot the player made and updates the shooting map accordingly.
+     *
+     * @param shotStatus the result of the shot
+     */
     @Override
     public void getShotInformationReturn(ShotStatus shotStatus) {
-        if(shotStatus.getStatus() == ShotStatuses.SHOT || shotStatus.getStatus() == ShotStatuses.SHOTNDESTORYED) {
+        if (shotStatus.getStatus() == ShotStatuses.SHOT || shotStatus.getStatus() == ShotStatuses.SHOTNDESTORYED) {
             var shootCell = _shootingMap.getCellAt(shotStatus.getShootCoordinate());
             shootCell.setIsAimed(true);
         }
         sendMessage(_shootingMap);
     }
 
+    /**
+     * Processes a shot received by the player and notifies the client.
+     *
+     * @param coordinates the coordinates that were shot
+     * @return the result of the shot
+     */
     @Override
     public ShotStatus takeShot(CellCoordinates coordinates) {
         ShotStatus result = super.takeShot(coordinates);
@@ -73,6 +105,11 @@ public class HumanPlayer extends Player { ;
         return result;
     }
 
+    /**
+     * Handles messages received from the client and dispatches them appropriately.
+     *
+     * @param message the message object sent by the client
+     */
     public void handleMessage(Object message) {
         if (message instanceof CellCoordinates coords) {
             onPlayerShootReceived(coords);
@@ -86,10 +123,10 @@ public class HumanPlayer extends Player { ;
             if (pauseStartTimestamp > 0) {
                 long now = System.currentTimeMillis();
                 long pauseDuration = now - pauseStartTimestamp;
-                pauseTime += pauseDuration / 1000; // convert ms to seconds
+                pauseTime += pauseDuration / 1000;
                 pauseStartTimestamp = 0;
             }
-        } else if(message instanceof ScoreboardRequest){
+        } else if (message instanceof ScoreboardRequest) {
             var scoreboard = ScoreboardHandler.getSortedScoreboard();
             sendMessage(scoreboard);
         } else {
@@ -97,6 +134,11 @@ public class HumanPlayer extends Player { ;
         }
     }
 
+    /**
+     * Processes a shot sent by the client and completes the pending shot future.
+     *
+     * @param coordinates the coordinates selected by the player
+     */
     public void onPlayerShootReceived(CellCoordinates coordinates) {
         if (pendingShot != null && !pendingShot.isDone()) {
             var shotCell = _shootingMap.getCellAt(coordinates);
@@ -105,6 +147,11 @@ public class HumanPlayer extends Player { ;
         }
     }
 
+    /**
+     * Handles the response of a ship placement sent by the client.
+     *
+     * @param placementDto the placement details from the client
+     */
     public void handleShipPlacementResponse(ShipPlacementDto placementDto) {
         if (shipsLeftToPlace <= 0) return;
 
@@ -134,10 +181,19 @@ public class HumanPlayer extends Player { ;
         }
     }
 
+    /**
+     * Sends the current ship placement request to the client.
+     */
     private void sendCurrentShipRequest() {
         sendMessage(new ShipPlacementRequestDto(currentShipId, currentShipLength, _shipsMap));
     }
 
+    /**
+     * Calculates the correct ship length based on the ship index.
+     *
+     * @param shipIndex index of the ship being placed
+     * @return the length of the ship
+     */
     private int calculateShipLengthForIndex(int shipIndex) {
         int[] amounts = _shipsConfiguration.getShipAmounts();
         int cumulative = 0;
@@ -150,6 +206,11 @@ public class HumanPlayer extends Player { ;
         throw new IllegalStateException("Invalid ship placement tracking");
     }
 
+    /**
+     * Sends a serializable object to the client.
+     *
+     * @param object the object to send
+     */
     public void sendMessage(Object object) {
         try {
             Server.out.reset();
@@ -160,6 +221,11 @@ public class HumanPlayer extends Player { ;
         }
     }
 
+    /**
+     * Sends a string message to the client.
+     *
+     * @param message the message to send
+     */
     public void sendMessage(String message) {
         try {
             Server.out.reset();
@@ -174,8 +240,12 @@ public class HumanPlayer extends Player { ;
         }
     }
 
+    /**
+     * Returns the total pause time accumulated by the player during the game.
+     *
+     * @return the total paused time in seconds
+     */
     public long getPauseTimeInSeconds() {
         return pauseTime;
     }
 }
-

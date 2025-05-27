@@ -12,20 +12,33 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Implements logic for destroying a partially hit ship by the computer player.
+ * Tracks hit coordinates, analyzes ship orientation, and selects optimal directions to continue shooting.
+ */
 public class DestroyMechanism {
+
     private Boolean _isShipDirectionDetermined = false;
     private final List<CellCoordinates> _shipToBeDestroyed;
     private final ShootingMap _cellsLeftToShoot;
     private final ShootingMap _shootingMap;
     private final List<Directions> _directionsLeftToShoot;
     private Directions _lastUsedDriection = null;
-    private  ShotStatus  _lastShotStatus;
+    private ShotStatus _lastShotStatus;
     private final Random _random = new Random();
 
+    /**
+     * Creates a new instance of the destroy mechanism.
+     *
+     * @param cellsLeftToShoot the map tracking cells that haven't been shot yet
+     * @param shootingMap the map showing the status of previous shots
+     * @param shotStatus the result of the most recent shot
+     */
     public DestroyMechanism(
-                            ShootingMap cellsLeftToShoot,
-                            ShootingMap shootingMap,
-                            ShotStatus shotStatus) {
+            ShootingMap cellsLeftToShoot,
+            ShootingMap shootingMap,
+            ShotStatus shotStatus) {
+
         this._shipToBeDestroyed = new ArrayList<>();
         this._cellsLeftToShoot = cellsLeftToShoot;
         this._shootingMap = shootingMap;
@@ -38,8 +51,13 @@ public class DestroyMechanism {
         this._lastShotStatus = shotStatus;
     }
 
+    /**
+     * Executes the destroy mechanism's logic to determine the next coordinates to shoot at.
+     *
+     * @return the next cell coordinates to shoot
+     */
     public CellCoordinates destroy() {
-        if(_lastShotStatus.getStatus() == ShotStatuses.SHOT) {
+        if (_lastShotStatus.getStatus() == ShotStatuses.SHOT) {
             _shipToBeDestroyed.add(_lastShotStatus.getShootCoordinate());
         } else if (_lastShotStatus.getStatus() == ShotStatuses.MISSED) {
             _directionsLeftToShoot.remove(_lastUsedDriection);
@@ -63,16 +81,31 @@ public class DestroyMechanism {
         }
     }
 
+    /**
+     * Randomly selects one of the remaining valid directions to try shooting in.
+     *
+     * @return a random direction
+     */
     private Directions getRandomDirectionFromLeftDirections() {
         int index = _random.nextInt(_directionsLeftToShoot.size());
         return _directionsLeftToShoot.get(index);
     }
 
+    /**
+     * Checks whether the given coordinates are within bounds and still available for shooting.
+     *
+     * @param cellCoordinates the coordinates to validate
+     * @return true if valid for shooting, false otherwise
+     */
     private boolean validateCellCoordinatesForShot(CellCoordinates cellCoordinates) {
         return _shootingMap.areCoordinatesInBounds(cellCoordinates)
                 && _cellsLeftToShoot.getCellAt(cellCoordinates) != null;
     }
 
+    /**
+     * Analyzes the collected hit cells to determine the ship's direction (horizontal or vertical),
+     * and removes irrelevant directions accordingly.
+     */
     private void determineShipDirection() {
         if (_shipToBeDestroyed.size() >= 2) {
             boolean allXEqual = _shipToBeDestroyed.stream()
@@ -92,10 +125,17 @@ public class DestroyMechanism {
                 _directionsLeftToShoot.remove(Directions.UP);
                 _directionsLeftToShoot.remove(Directions.DOWN);
             }
+
             _isShipDirectionDetermined = true;
         }
     }
 
+    /**
+     * Determines the next edge cell to target based on the given direction and the current list of hit cells.
+     *
+     * @param direction the direction to extend the attack
+     * @return the coordinates of the edge cell in the specified direction
+     */
     private CellCoordinates getEdgeCellForDirection(Directions direction) {
         return switch (direction) {
             case UP -> {
@@ -121,10 +161,13 @@ public class DestroyMechanism {
         };
     }
 
+    /**
+     * Removes all cells surrounding the currently identified ship from the list of available targets.
+     * Called when the ship is confirmed destroyed.
+     */
     public void removeNeighborsOfShipToBeDestroyed() {
         for (CellCoordinates coordinate : _shipToBeDestroyed) {
             _cellsLeftToShoot.removeCellsAround(coordinate);
         }
     }
-
 }

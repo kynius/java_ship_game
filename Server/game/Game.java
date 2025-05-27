@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents a game between two players. Handles turn order, shooting logic, game flow, and ending.
+ */
 public class Game {
 
     private final Random _random = new Random();
@@ -19,6 +22,14 @@ public class Game {
     private boolean _wasFirstMoveDone = false;
     private LocalDateTime _gameStartTime;
 
+    /**
+     * Initializes the game with two players and a map configuration.
+     * Randomly assigns which player starts first.
+     *
+     * @param playerOne the first player
+     * @param playerTwo the second player
+     * @param mapConfig the configuration of the map
+     */
     public Game(Player playerOne, Player playerTwo, MapConfigfuration mapConfig) {
         if (_random.nextBoolean()) {
             _players[0] = playerOne;
@@ -29,12 +40,20 @@ public class Game {
         }
     }
 
+    /**
+     * Switches the current turn between players.
+     */
     private void switchTurn() {
         Player temp = _players[0];
         _players[0] = _players[1];
         _players[1] = temp;
     }
 
+    /**
+     * Asynchronously places ships for both players.
+     *
+     * @return a CompletableFuture that completes when both players have placed their ships
+     */
     private CompletableFuture<Void> placeShips() {
         return CompletableFuture.allOf(
                 _players[0].placeShips(),
@@ -42,10 +61,17 @@ public class Game {
         );
     }
 
+    /**
+     * Starts the game by triggering the ship placement and game loop.
+     */
     public void startGame() {
         placeShips().thenRun(this::playGame);
     }
 
+    /**
+     * Manages the core gameplay loop, including handling shots, switching turns,
+     * and checking for game end.
+     */
     private void playGame() {
         if (!_wasFirstMoveDone) {
             sendFirstMoveInfo(_players[0]);
@@ -73,6 +99,11 @@ public class Game {
         });
     }
 
+    /**
+     * Sends an initial message to the human player indicating turn order.
+     *
+     * @param currentPlayer the player who will start
+     */
     private void sendFirstMoveInfo(Player currentPlayer) {
         if (currentPlayer instanceof HumanPlayer) {
             ((HumanPlayer) currentPlayer).sendMessage("Zaczynasz pierwszy, zmarkuj swoj strzal");
@@ -81,6 +112,13 @@ public class Game {
         }
     }
 
+    /**
+     * Handles the result of a shot and informs the players of the outcome.
+     *
+     * @param currentPlayer the player who made the shot
+     * @param shotStatus the result of the shot
+     * @return true if the game has ended, false otherwise
+     */
     private boolean handleShotResponse(Player currentPlayer, ShotStatus shotStatus) {
         ShotStatuses status = shotStatus.getStatus();
 
@@ -125,6 +163,11 @@ public class Game {
         return false;
     }
 
+    /**
+     * Sends a game-end message to the appropriate player.
+     *
+     * @param winner the player who won
+     */
     private void sendGameEndMessage(Player winner) {
         if (winner instanceof HumanPlayer) {
             ((HumanPlayer) winner).sendMessage("Koniec gry, wygrałeś");
@@ -133,6 +176,11 @@ public class Game {
         }
     }
 
+    /**
+     * Ends the game, calculates game statistics and sends a GameEndDto to the human player.
+     *
+     * @param isHumanWinner true if the human player won, false otherwise
+     */
     private void endGame(boolean isHumanWinner) {
         HumanPlayer humanPlayer = null;
         for (Player player : _players) {
@@ -141,6 +189,7 @@ public class Game {
                 break;
             }
         }
+
         long gameDuration = Duration.between(_gameStartTime, LocalDateTime.now()).toSeconds();
         long gameTimeInSeconds = gameDuration - humanPlayer.getPauseTimeInSeconds();
         int movesMadeByYou = humanPlayer.getShotsMade();
@@ -154,6 +203,11 @@ public class Game {
         humanPlayer.sendMessage(gameEndDto);
     }
 
+    /**
+     * Pauses execution for the specified number of milliseconds.
+     *
+     * @param ms duration in milliseconds to sleep
+     */
     private void sleep(int ms) {
         try {
             Thread.sleep(ms);

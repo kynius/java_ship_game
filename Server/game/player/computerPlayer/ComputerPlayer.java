@@ -10,24 +10,44 @@ import Server.game.utility.ShotStatuses;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents a computer-controlled player in the game.
+ * Handles automatic ship placement and shooting logic using {@link ComputerShootingManager}.
+ */
 public class ComputerPlayer extends Player {
 
-    private final Random _random = new Random();
-    private final ComputerShootingManager _computerShootingManager;
-    private ShotStatus _lastShotStatus = new ShotStatus();
+    private final Random random = new Random();
+    private final ComputerShootingManager computerShootingManager;
+    private ShotStatus lastShotStatus = new ShotStatus();
 
+    /**
+     * Constructs a computer player with the specified map size and ship configuration.
+     *
+     * @param mapSize the size of the game map
+     * @param shipsConfiguration the ship configuration for this player
+     */
     public ComputerPlayer(int mapSize, ShipsConfiguration shipsConfiguration) {
         super(mapSize, shipsConfiguration);
-        _computerShootingManager = new ComputerShootingManager(_shootingMap, _lastShotStatus);
+        computerShootingManager = new ComputerShootingManager(_shootingMap, lastShotStatus);
     }
 
+    /**
+     * Automatically determines and returns the next cell to shoot at.
+     *
+     * @return a completed future containing the coordinates to shoot
+     */
     @Override
     public CompletableFuture<CellCoordinates> makeShoot() {
         _shotsMade++;
-        CellCoordinates coords = _computerShootingManager.shoot();
+        CellCoordinates coords = computerShootingManager.shoot();
         return CompletableFuture.completedFuture(coords);
     }
 
+    /**
+     * Automatically places all ships randomly on the map.
+     *
+     * @return a completed future indicating the placement is done
+     */
     @Override
     public CompletableFuture<Void> placeShips() {
         int[] shipsPerLength = _shipsConfiguration.getShipAmounts();
@@ -41,34 +61,39 @@ public class ComputerPlayer extends Player {
                 boolean placed = false;
 
                 while (!placed) {
-                    int x = _random.nextInt(_shipsMap.getSize()) + 1;
-                    int y = _random.nextInt(_shipsMap.getSize()) + 1;
+                    int x = random.nextInt(_shipsMap.getSize()) + 1;
+                    int y = random.nextInt(_shipsMap.getSize()) + 1;
                     Directions direction = Directions.getRandom();
                     CellCoordinates coords = new CellCoordinates(x, y);
                     placed = _shipPlacingManager.placeShip(shipLength, coords, direction, shipId);
                 }
+
                 shipId++;
             }
-
         }
 
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * Updates the shooting map and internal state based on the result of a recent shot.
+     *
+     * @param shotStatus the result of the shot made by this player
+     */
     @Override
     public void getShotInformationReturn(ShotStatus shotStatus) {
-        _lastShotStatus.updateFrom(shotStatus);
-        var cellToMark = this._shootingMap.getCellAt(shotStatus.getShootCoordinate());
+        lastShotStatus.updateFrom(shotStatus);
+        var cellToMark = _shootingMap.getCellAt(shotStatus.getShootCoordinate());
         cellToMark.setShot(true);
 
         if (shotStatus.getStatus() != ShotStatuses.MISSED) {
             cellToMark.setIsAimed(true);
 
             if (shotStatus.getStatus() == ShotStatuses.SHOT) {
-                _computerShootingManager.setIsDestroying(true);
+                computerShootingManager.setIsDestroying(true);
             } else if (shotStatus.getStatus() == ShotStatuses.SHOTNDESTORYED) {
-                _computerShootingManager.setIsDestroying(false);
-                _computerShootingManager.ResetDestroyer();
+                computerShootingManager.setIsDestroying(false);
+                computerShootingManager.resetDestroyer();
             }
         }
     }

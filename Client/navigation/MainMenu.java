@@ -8,29 +8,35 @@ import Server.game.utility.ShipsConfiguration;
 
 import javax.swing.*;
 import java.awt.*;
-
+/**
+ * Displays the main menu of the Java Ship Game.
+ * Allows the user to start a new game, view the scoreboard, or exit the application.
+ */
 public class MainMenu implements Menu {
-    public static void displayMenu() {
-            JFrame frame = Client.frame;
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1920, 1080);
-            frame.setLayout(new BorderLayout());
-            frame.setResizable(false);
-            var titleLabel = new JLabel("Java Ship Game", SwingConstants.CENTER);
-            titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
-            frame.add(titleLabel, BorderLayout.NORTH);
-
-            var buttonPanel = new JPanel(new GridLayout(3, 1, 20, 20));
-            buttonPanel.setBorder(BorderFactory.createEmptyBorder(400, 400, 400, 400));
-
-            var startGameButton = new JButton("Zacznij grę");
-            startGameButton.setFont(new Font("Arial", Font.PLAIN, 36));
-            var scoreBoard = new JButton("Zobacz tabelę wyników");
-            scoreBoard.setFont(new Font("Arial", Font.PLAIN, 36));
-            var exitButton = new JButton("Wyjdź");
-            exitButton.setFont(new Font("Arial", Font.PLAIN, 36));
-
-            startGameButton.addActionListener(e -> {
+        /**
+         * Displays the main menu window with options to start a game, view the scoreboard, or exit.
+         * Handles user interactions for each menu option, including map size selection for new games.
+         */
+        public static void displayMenu() {
+                JFrame frame = Client.frame;
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(1920, 1080);
+                frame.setLayout(new BorderLayout());
+                frame.setResizable(false);
+                var titleLabel = new JLabel("Java Ship Game", SwingConstants.CENTER);
+                titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
+                frame.add(titleLabel, BorderLayout.NORTH);
+                
+                var buttonPanel = new JPanel(new GridLayout(3, 1, 20, 20));
+                buttonPanel.setBorder(BorderFactory.createEmptyBorder(400, 400, 400, 400));
+                
+                var startGameButton = new JButton("Zacznij grę");
+                startGameButton.setFont(new Font("Arial", Font.PLAIN, 36));
+                var scoreBoard = new JButton("Zobacz tabelę wyników");
+                scoreBoard.setFont(new Font("Arial", Font.PLAIN, 36));
+                var exitButton = new JButton("Wyjdź");
+                exitButton.setFont(new Font("Arial", Font.PLAIN, 36));
+                startGameButton.addActionListener(e -> {
                     var sizeFrame = new JFrame("Wybierz wielkość planszy");
                     sizeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     sizeFrame.setSize(600, 100);
@@ -59,17 +65,17 @@ public class MainMenu implements Menu {
                     sizeFrame.setVisible(true);
                     sizeFrame.setLocationRelativeTo(null);
             });
-            scoreBoard.addActionListener(e -> {
-                    MessageHandler.sendObject(new ScoreboardRequest());
-            });
-            exitButton.addActionListener(e -> System.exit(0));
+                scoreBoard.addActionListener(e -> {
+                        MessageHandler.sendObject(new ScoreboardRequest());
+                });
+                exitButton.addActionListener(e -> System.exit(0));
+                
+                buttonPanel.add(startGameButton);
+                buttonPanel.add(scoreBoard);
+                buttonPanel.add(exitButton);
 
-            buttonPanel.add(startGameButton);
-            buttonPanel.add(scoreBoard);
-            buttonPanel.add(exitButton);
-
-            frame.add(buttonPanel, BorderLayout.CENTER);
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-            }
+                frame.add(buttonPanel, BorderLayout.CENTER);
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+        }
 }

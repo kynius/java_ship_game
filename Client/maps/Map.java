@@ -1,5 +1,4 @@
 package Client.maps;
-
 import Client.main.MessageHandler;
 import Client.navigation.PauseMenu;
 import DTOs.*;
@@ -9,22 +8,37 @@ import Server.game.cell.ShipsCell;
 import Client.main.Client;
 import Server.game.cell.ShootingCell;
 import Server.game.utility.Directions;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Comparator;
-
+/**
+ * Provides methods to generate and update the main game UI,
+ * including ship placement, shooting phases, scoreboard, and end game dialogs.
+ * Handles user interactions and updates the console area.
+ */
 public class Map {
+    /** Label displaying the current ship direction in the legend. */
     private static JLabel GlobalLegendDirection;
+    /** Current direction for ship placement. */
     private static Directions direction = Directions.UP;
-    private static Layout layout = Layout.Placing;
-    private static int shipLength = 0;
+    /** Current layout state of the game UI. */
+    private static Layout layout;
+    /** Length of the ship currently being placed. */
+    private static int shipLength;
+    /** Letters used for column labels in the grid. */
     private static final String[] LETTERS = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+    /** Number of cells per row/column in the grid. */
     private static int cellCount;
+    /** List of messages displayed in the console area. */
     public static ArrayList<String> consoleMessages;
+    /**
+     * Generates the ship placement map UI, allowing the player to place ships.
+     *
+     * @param shipPlacementRequestDto Data transfer object containing ship placement info.
+     */
     public static void GeneratePlacingMap(ShipPlacementRequestDto shipPlacementRequestDto) {
         shipLength = shipPlacementRequestDto.getShipLength();
         var cells = (ArrayList<ShipsCell>) shipPlacementRequestDto.getShipmap().get_cells();
@@ -88,6 +102,11 @@ public class Map {
         frame.add(gridPanel, BorderLayout.CENTER);
         generateLayout(Layout.Placing);
     }
+    /**
+     * Generates the UI for the computer's shooting phase, showing the result of the computer's shot.
+     *
+     * @param receiveShotDto Data transfer object with the result of the computer's shot.
+     */
     public static void GenerateComputerShootMap(ReceiveShotDto receiveShotDto) {
         var cells = receiveShotDto.getShipsMap().get_cells();
         JFrame frame = Client.frame;
@@ -124,6 +143,11 @@ public class Map {
         frame.add(gridPanel, BorderLayout.CENTER);
         generateLayout(Layout.ComputerShooting);
     }
+    /**
+     * Generates the UI for the player's shooting phase, allowing the player to select a target.
+     *
+     * @param cells List of cells representing the current shooting map.
+     */
     public static void GeneratePlayerShootMap(ArrayList<ShootingCell> cells){
         JFrame frame = Client.frame;
         frame.getContentPane().removeAll();
@@ -158,14 +182,12 @@ public class Map {
         frame.add(gridPanel, BorderLayout.CENTER);
         generateLayout(Layout.PlayerShooting);
     }
-    private static void disableAllButtons(JPanel gridPanel){
-        ArrayList<JButton> buttons = new ArrayList<>();
-        for (Component component : gridPanel.getComponents()) {
-            if (component instanceof JButton) {
-                removeHoverAndClickEffect((JButton) component);
-            }
-        }
-    }
+    /**
+     * Removes hover and click effects from a button, making it non-interactive.
+     *
+     * @param cellButton The button to modify.
+     * @return The modified button.
+     */
     private static JButton removeHoverAndClickEffect(JButton cellButton){
         cellButton.setFocusPainted(false);
         cellButton.setContentAreaFilled(false);
@@ -173,6 +195,12 @@ public class Map {
         cellButton.setOpaque(true);
         return cellButton;
     }
+    /**
+     * Generates a grid panel template with column and row labels.
+     *
+     * @param cellCount Number of cells per row/column.
+     * @return The generated grid panel.
+     */
     private static JPanel generateTemplate(int cellCount){
         JPanel gridPanel = new JPanel(new GridLayout(cellCount + 1, cellCount + 1));
         for (int col = 0; col <= cellCount; col++) {
@@ -185,6 +213,11 @@ public class Map {
         }
         return gridPanel;
     }
+    /**
+     * Updates the layout and info panel based on the current game phase.
+     *
+     * @param layoutEnum The current layout state.
+     */
     private static void generateLayout(Layout layoutEnum) {
         layout = layoutEnum;
         JFrame frame = Client.frame;
@@ -272,6 +305,9 @@ public class Map {
         frame.setVisible(true);
         refreshConsole();
     }
+    /**
+     * Refreshes the console area with the latest messages.
+     */
     public static void refreshConsole(){
         JFrame frame = Client.frame;
         JScrollPane consoleScrollPane = (JScrollPane) frame.getContentPane().getComponent(1);
@@ -282,6 +318,11 @@ public class Map {
         frame.revalidate();
         frame.repaint();
     }
+    /**
+     * Displays the end game dialog with the result and options to save the score.
+     *
+     * @param gameEndDto Data transfer object containing end game information.
+     */
     public static void GenerateEndGame(GameEndDto gameEndDto){
         var frame = Client.frame;
         JDialog dialog = new JDialog(frame, "Koniec gry", true);
@@ -335,6 +376,11 @@ public class Map {
         dialog.setLocationRelativeTo(frame);
         dialog.setVisible(true);
     }
+    /**
+     * Displays the scoreboard dialog with a list of player scores.
+     *
+     * @param scoreboardDto Data transfer object containing the scoreboard.
+     */
     public static void GenerateScoreboard(ScoreboardDto scoreboardDto) {
 
         JFrame frame = Client.frame;

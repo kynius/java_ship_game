@@ -2,14 +2,25 @@ package Server.game.utility;
 
 import java.io.Serializable;
 
+/**
+ * Represents the configuration of ships used in the game.
+ * Each index in the array corresponds to the number of ships of a given size,
+ * ordered from longest to shortest.
+ * <p>
+ * For example: index 0 = number of 4-cell ships, index 1 = number of 3-cell ships, etc.
+ * </p>
+ * <p>
+ * This class is immutable and serializable.
+ * </p>
+ */
 public class ShipsConfiguration implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private final int[] shipAmounts;
 
     /**
      * Creates a ship configuration with variable ship lengths.
      * The first element is the number of ships with the longest size.
-     * For example: index 0 = 4-cell ships, index 1 = 3-cell ships, etc.
      *
      * @param shipAmounts array of ship counts ordered from longest to shortest ship size
      */

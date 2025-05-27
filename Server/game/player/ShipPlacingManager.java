@@ -8,36 +8,69 @@ import Server.game.utility.Directions;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Responsible for placing ships on the map based on user input.
+ * Handles both one-cell and multi-cell ships, ensuring valid placement and marking adjacent cells as blocked.
+ */
 public class ShipPlacingManager {
+
     private ShipsMap _map;
 
+    /**
+     * Constructs a new ship placing manager with the given map.
+     *
+     * @param map the ship map to place ships on
+     */
     public ShipPlacingManager(ShipsMap map) {
         this._map = map;
     }
 
-    public boolean placeShip(int shipLength, CellCoordinates startingCooridinate, Directions direction, int id)
-    {
-        if(shipLength == 1)
-        {
+    /**
+     * Attempts to place a ship of a given length starting from a coordinate in a specific direction.
+     *
+     * @param shipLength the length of the ship
+     * @param startingCooridinate the starting position of the ship
+     * @param direction the direction in which the ship should extend
+     * @param id a unique identifier for the ship
+     * @return true if the ship was successfully placed; false otherwise
+     */
+    public boolean placeShip(int shipLength, CellCoordinates startingCooridinate, Directions direction, int id) {
+        if (shipLength == 1) {
             return addOneCellShip(startingCooridinate, id);
-        } else
-        {
+        } else {
             return addMultipeCellShip(startingCooridinate, direction, shipLength, id);
         }
     }
 
-    private boolean addOneCellShip(CellCoordinates coordinates, int id)
-    {
+    /**
+     * Attempts to place a one-cell ship at the given coordinates.
+     *
+     * @param coordinates the location of the ship
+     * @param id the ID to assign to the ship
+     * @return true if placement is valid and successful; false otherwise
+     */
+    private boolean addOneCellShip(CellCoordinates coordinates, int id) {
         List<ShipsCell> shipCells = new ArrayList<>();
-        var isPossbile = isPossibleToShip(coordinates);
-        if(isPossbile) {
+        boolean isPossible = isPossibleToShip(coordinates);
+
+        if (isPossible) {
             shipCells.add(_map.getCellAt(coordinates));
             markAsShip(shipCells, id);
             markSurroundingCellsBlocked(shipCells);
         }
-        return isPossbile;
+
+        return isPossible;
     }
 
+    /**
+     * Attempts to place a multi-cell ship starting from a coordinate in a given direction.
+     *
+     * @param start the starting coordinate
+     * @param direction the direction of the ship
+     * @param length the length of the ship
+     * @param id the ID to assign to the ship
+     * @return true if placement is valid and successful; false otherwise
+     */
     private boolean addMultipeCellShip(CellCoordinates start, Directions direction, int length, int id) {
         List<ShipsCell> shipCells = new ArrayList<>();
 
@@ -69,6 +102,11 @@ public class ShipPlacingManager {
         return true;
     }
 
+    /**
+     * Marks all surrounding cells of the given ship cells as blocked (unavailable for ship placement).
+     *
+     * @param shipCells list of ship cells whose neighbors will be blocked
+     */
     private void markSurroundingCellsBlocked(List<ShipsCell> shipCells) {
         for (ShipsCell shipCell : shipCells) {
             int baseX = shipCell.getX();
@@ -93,6 +131,12 @@ public class ShipPlacingManager {
         }
     }
 
+    /**
+     * Marks the given cells as belonging to a ship with a specific ID.
+     *
+     * @param cells the cells to mark as part of the ship
+     * @param id the ship ID to assign to each cell
+     */
     private void markAsShip(List<ShipsCell> cells, int id) {
         for (ShipsCell cell : cells) {
             cell.setShip(true);
@@ -101,10 +145,15 @@ public class ShipPlacingManager {
         }
     }
 
-    private boolean isPossibleToShip(CellCoordinates coordinates)
-    {
-        if(!_map.areCoordinatesInBounds(coordinates)) return false;
-        var cell = _map.getCellAt(coordinates);
+    /**
+     * Checks if a ship can be placed at the given coordinates.
+     *
+     * @param coordinates the location to check
+     * @return true if the coordinates are valid and available for ship placement; false otherwise
+     */
+    private boolean isPossibleToShip(CellCoordinates coordinates) {
+        if (!_map.areCoordinatesInBounds(coordinates)) return false;
+        ShipsCell cell = _map.getCellAt(coordinates);
         return cell.isPossibleToShip();
     }
 }
