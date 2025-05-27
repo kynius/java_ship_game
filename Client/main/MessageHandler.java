@@ -1,10 +1,8 @@
 package Client.main;
 
-import DTOs.ShipPlacementRequestDto;
-import Server.game.cell.ShipsCell;
+import DTOs.*;
 import Server.game.cell.ShootingCell;
 import Client.maps.Map;
-import Server.game.map.ShipsMap;
 import Server.game.map.ShootingMap;
 
 import java.io.IOException;
@@ -33,21 +31,26 @@ public class MessageHandler {
         if (message instanceof ShipPlacementRequestDto)
         {
             var shipPlacementRequestDto = (ShipPlacementRequestDto) message;
-            var shipmap = shipPlacementRequestDto.getShipmap();
-            var cells = (ArrayList<ShipsCell>) shipmap.get_cells();
-            Map.GeneratePlacingMap(cells);
+            Map.GeneratePlacingMap(shipPlacementRequestDto);
         }
-        if(message instanceof ShipsMap)
+        if(message instanceof ReceiveShotDto)
         {
-            var shipmap = (ShipsMap) message;
-            var cells = (ArrayList<ShipsCell>) shipmap.get_cells();
-            Map.GenerateComputerShootMap(cells);
+            var receiveShotDto = (ReceiveShotDto) message;
+            Map.GenerateComputerShootMap(receiveShotDto);
         }
         if (message instanceof ShootingMap)
         {
             var shootingMap = (ShootingMap) message;
             var cells = (ArrayList<ShootingCell>) shootingMap.get_cells();
             Map.GeneratePlayerShootMap(cells);
+        }
+        if(message instanceof ScoreboardDto){
+            var scoreboardDto = (ScoreboardDto) message;
+            Map.GenerateScoreboard(scoreboardDto);
+        }
+        if(message instanceof GameEndDto){
+            var gameEndDto = (GameEndDto) message;
+            Map.GenerateEndGame(gameEndDto);
         }
     }
 }

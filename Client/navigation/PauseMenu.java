@@ -1,35 +1,32 @@
 package Client.navigation;
 
+import Client.main.Client;
+import Client.main.MessageHandler;
+import RequestClasses.PauseStopRequest;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class PauseMenu {
     public static void displayPauseMenu() {
-        JFrame frame = new JFrame("Menu Pauzy");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(300, 200);
-        frame.setLayout(new GridLayout(3, 1));
-
+        var frame = Client.frame;
+        JDialog dialog = new JDialog(frame, "Menu Pauzy", true); // true = modal
+        dialog.setSize(600, 300);
+        dialog.setLayout(new BorderLayout());
+        var buttonPanel = new JPanel(new GridLayout(2, 1, 20, 20));
         JButton resumeButton = new JButton("Wznów grę");
-        JButton abandonButton = new JButton("Porzuć grę");
+        resumeButton.setMaximumSize(new Dimension(200, 50));
         JButton exitButton = new JButton("Wyjdź do pulpitu");
-
+        exitButton.setMaximumSize(new Dimension(200, 50));
         resumeButton.addActionListener(e -> {
-            frame.dispose();
+            dialog.dispose();
+            MessageHandler.sendObject(new PauseStopRequest());
         });
-
-        abandonButton.addActionListener(e -> {
-            frame.dispose();
-        });
-
-        exitButton.addActionListener(e -> {
-            System.exit(0);
-        });
-
-        frame.add(resumeButton);
-        frame.add(abandonButton);
-        frame.add(exitButton);
-
-        frame.setVisible(true);
+        exitButton.addActionListener(e -> System.exit(0));
+        buttonPanel.add(resumeButton);
+        buttonPanel.add(exitButton);
+        dialog.add(buttonPanel, BorderLayout.CENTER);
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
     }
 }

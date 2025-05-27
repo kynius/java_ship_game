@@ -7,9 +7,25 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import javax.swing.*;
+/**
+ * The Client class is responsible for connecting to the game server,
+ * initializing the main application window, and handling incoming messages.
+ */
 public class Client {
+    /**
+     * The main application window frame.
+     */
     public static JFrame frame;
+    /**
+     * The output stream used to send objects to the server.
+     */
     public static ObjectOutputStream out;
+    /**
+     * The main entry point for the client application.
+     * Connects to the server, initializes the GUI, and processes incoming messages.
+     *
+     * @param args Command line arguments: server address and port.
+     */
     public static void main(String[] args) {
         ObjectInputStream in;
         Object message;

@@ -2,6 +2,7 @@ package Client.navigation;
 
 import Client.main.Client;
 import Client.main.MessageHandler;
+import RequestClasses.ScoreboardRequest;
 import Server.game.utility.MapConfigfuration;
 import Server.game.utility.ShipsConfiguration;
 
@@ -24,39 +25,47 @@ public class MainMenu implements Menu {
 
             var startGameButton = new JButton("Zacznij grę");
             startGameButton.setFont(new Font("Arial", Font.PLAIN, 36));
-            var configButton = new JButton("Wybierz konfigurację");
-            configButton.setFont(new Font("Arial", Font.PLAIN, 36));
+            var scoreBoard = new JButton("Zobacz tabelę wyników");
+            scoreBoard.setFont(new Font("Arial", Font.PLAIN, 36));
             var exitButton = new JButton("Wyjdź");
             exitButton.setFont(new Font("Arial", Font.PLAIN, 36));
 
             startGameButton.addActionListener(e -> {
                     var sizeFrame = new JFrame("Wybierz wielkość planszy");
                     sizeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    sizeFrame.setSize(400, 100);
+                    sizeFrame.setSize(600, 100);
                     sizeFrame.setLayout(new FlowLayout());
-                    for (int i = 5; i <= 10; i++) {
+                    var smallMap = new JButton("Mała plansza (6x6)");
+                    smallMap.addActionListener(event -> {
                             int[] mapConfigurations = new int[]{1,1,2};
-                            var button = new JButton("" + i);
-                            int finalI = i;
-                            button.addActionListener(event -> {
-                                    MessageHandler.sendObject(new MapConfigfuration(finalI, new ShipsConfiguration(mapConfigurations)));
-                                    sizeFrame.dispose();
-                            });
-                            sizeFrame.add(button);
-                    }
+                            MessageHandler.sendObject(new MapConfigfuration(6, new ShipsConfiguration(mapConfigurations)));
+                            sizeFrame.dispose();
+                    });
+                    var normalMap = new JButton("Średnia plansza (10x10)");
+                    normalMap.addActionListener(event -> {
+                            int[] mapConfigurations = new int[]{1,2,3,4};
+                            MessageHandler.sendObject(new MapConfigfuration(10, new ShipsConfiguration(mapConfigurations)));
+                            sizeFrame.dispose();
+                    });
+                    var bigMap = new JButton("Duża plansza (15x15)");
+                    bigMap.addActionListener(event -> {
+                            int[] mapConfigurations = new int[]{1,2,3,3,4};
+                            MessageHandler.sendObject(new MapConfigfuration(15, new ShipsConfiguration(mapConfigurations)));
+                            sizeFrame.dispose();
+                    });
+                    sizeFrame.add(smallMap);
+                    sizeFrame.add(normalMap);
+                    sizeFrame.add(bigMap);
                     sizeFrame.setVisible(true);
                     sizeFrame.setLocationRelativeTo(null);
             });
-            configButton.addActionListener(e -> {
-                    frame.getContentPane().removeAll();
-                    ConfigMenu.displayMenu();
-                    frame.revalidate();
-                    frame.repaint();
+            scoreBoard.addActionListener(e -> {
+                    MessageHandler.sendObject(new ScoreboardRequest());
             });
             exitButton.addActionListener(e -> System.exit(0));
 
             buttonPanel.add(startGameButton);
-            buttonPanel.add(configButton);
+            buttonPanel.add(scoreBoard);
             buttonPanel.add(exitButton);
 
             frame.add(buttonPanel, BorderLayout.CENTER);

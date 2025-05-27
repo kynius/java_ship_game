@@ -19,7 +19,6 @@ public class ShipPlacementRequestDto implements Serializable {
     public int getShipId() {
         return shipId;
     }
-
     public int getShipLength() {
         return shipLength;
     }

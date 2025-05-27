@@ -1,8 +1,14 @@
 package Server.game.player.humanPlayer;
 
+import DTOs.ScoreDto;
+import DTOs.ScoreboardDto;
 import DTOs.ShipPlacementDto;
 import DTOs.ShipPlacementRequestDto;
+import RequestClasses.PauseStartRequest;
+import RequestClasses.PauseStopRequest;
+import RequestClasses.ScoreboardRequest;
 import Server.Server;
+import Server.game.ScoreboardHandler;
 import Server.game.cell.CellCoordinates;
 import Server.game.player.Player;
 import Server.game.utility.ShipsConfiguration;
@@ -20,6 +26,9 @@ public class HumanPlayer extends Player { ;
     private int shipsLeftToPlace;
     private int currentShipId;
     private int currentShipLength;
+    private long pauseTime = 0;
+    private long pauseStartTimestamp = 0;
+
 
     public HumanPlayer(){
 
@@ -32,6 +41,7 @@ public class HumanPlayer extends Player { ;
     @Override
     public CompletableFuture<CellCoordinates> makeShoot() {
         pendingShot = new CompletableFuture<>();
+        _shotsMade++;
         sendMessage(_shootingMap);
         return pendingShot;
     }
@@ -58,7 +68,8 @@ public class HumanPlayer extends Player { ;
     @Override
     public ShotStatus takeShot(CellCoordinates coordinates) {
         ShotStatus result = super.takeShot(coordinates);
-        sendMessage(_shipsMap);
+        var recieveShotDto = new DTOs.ReceiveShotDto(_shipsMap, coordinates);
+        sendMessage(recieveShotDto);
         return result;
     }
 
@@ -67,6 +78,20 @@ public class HumanPlayer extends Player { ;
             onPlayerShootReceived(coords);
         } else if (message instanceof ShipPlacementDto placement) {
             handleShipPlacementResponse(placement);
+        } else if (message instanceof ScoreDto score) {
+            ScoreboardHandler.addScore(score);
+        } else if (message instanceof PauseStartRequest) {
+            pauseStartTimestamp = System.currentTimeMillis();
+        } else if (message instanceof PauseStopRequest) {
+            if (pauseStartTimestamp > 0) {
+                long now = System.currentTimeMillis();
+                long pauseDuration = now - pauseStartTimestamp;
+                pauseTime += pauseDuration / 1000; // convert ms to seconds
+                pauseStartTimestamp = 0;
+            }
+        } else if(message instanceof ScoreboardRequest){
+            var scoreboard = ScoreboardHandler.getSortedScoreboard();
+            sendMessage(scoreboard);
         } else {
             throw new RuntimeException("Object not acceptable: " + message.getClass());
         }
@@ -92,6 +117,7 @@ public class HumanPlayer extends Player { ;
 
         if (!placed) {
             sendMessage("Nie możesz tutaj postawić statku. Wychodzi poza mapę lub koliduje z innym statkiem");
+            sendCurrentShipRequest();
             return;
         }
 
@@ -124,7 +150,7 @@ public class HumanPlayer extends Player { ;
         throw new IllegalStateException("Invalid ship placement tracking");
     }
 
-    private void sendMessage(Object object) {
+    public void sendMessage(Object object) {
         try {
             Server.out.reset();
             Server.out.writeObject(object);
@@ -146,6 +172,10 @@ public class HumanPlayer extends Player { ;
             Thread.currentThread().interrupt();
             System.err.println("Sleep interrupted: " + e.getMessage());
         }
+    }
+
+    public long getPauseTimeInSeconds() {
+        return pauseTime;
     }
 }
 
